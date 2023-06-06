@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "CAFM_Mobile",
+    "slug": "CAFM_Mobile",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
