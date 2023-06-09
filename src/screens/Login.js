@@ -1,10 +1,11 @@
 import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
-import { Card, TextInput, TextInputMask, Button } from "react-native-paper";
-import { useDispatch, useSelector } from "react-redux";
+import { Card, TextInput, Button, Divider, Text } from "react-native-paper";
+import { useDispatch } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { authenticate } from "../store/actions/userActions";
-import { colors, screens } from "../constants/constants";
+import { authenticate, syncUserData } from "../store/actions/userActions";
+import { screens } from "../constants/constants";
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 
@@ -16,8 +17,26 @@ const Login = (props) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
+  const [showError, setShowError] = useState(false);
 
-  // Function that runs everytime mobileNum or password change.
+  // Checks if the user's credentials are saved and logs him in automatically
+  useEffect(() => {
+    const loginUser = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("user");
+        if (jsonValue !== null) {
+          await dispatch(syncUserData(jsonValue));
+          await props.navigation.replace(screens.tickets);
+        }
+      } catch (err) {
+        setError(err);
+        setShowError(true);
+      }
+    };
+    loginUser();
+  }, []);
+
+  // Runs everytime mobileNum or password change. Used for validating the 2 fields
   useEffect(() => {
     if (mobileNum.length > 2 && password.length > 2) setIsButtonDisabled(false);
     else setIsButtonDisabled(true);
@@ -27,17 +46,25 @@ const Login = (props) => {
     setIsLoading(true);
     try {
       await dispatch(authenticate(mobileNum, password));
-      props.navigation.replace(screens.tickets);
-      setMobileNum("");
-      setPassword("");
+      await props.navigation.replace(screens.tickets);
     } catch (err) {
       setError(err.message);
+      setShowError(true);
+      setIsButtonDisabled(true);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
+  // Sends user to registration screen
   const registerNewUser = () => {
     props.navigation.replace(screens.register);
+  };
+
+  // Closes Error Dialog
+  const dismissError = () => {
+    setShowError(false);
+    setError();
   };
 
   return (
@@ -47,6 +74,12 @@ const Login = (props) => {
       ) : (
         <View style={styles.page}>
           <Card style={styles.card} mode="elevated">
+            <Card.Content>
+              <Text style={styles.title} variant="headlineLarge">
+                Login
+              </Text>
+            </Card.Content>
+            <Divider />
             <Card.Content>
               <TextInput
                 mode="outlined"
@@ -80,7 +113,7 @@ const Login = (props) => {
               </Button>
             </Card.Content>
           </Card>
-          <Error error={error} dismiss={() => setError()} />
+          <Error error={error} visible={showError} dismiss={dismissError} />
         </View>
       )}
     </>
@@ -89,18 +122,21 @@ const Login = (props) => {
 
 const styles = StyleSheet.create({
   page: {
-    top: "19%",
+    top: "16%",
     height: "100%",
   },
   card: {
     margin: "10%",
   },
   input: {
-    marginBottom: "3%",
+    marginVertical: "1.5%",
   },
   authButton: {
     marginHorizontal: "5%",
     marginVertical: "2%",
+  },
+  title: {
+    textAlign: "center",
   },
 });
 

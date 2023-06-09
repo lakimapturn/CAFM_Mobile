@@ -5,6 +5,7 @@ import {
   commonErrorMsg,
   messageType,
 } from "../../constants/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const FETCHING = "FETCHING";
 export const AUTHENTICATE = "AUTHENTICATE";
@@ -19,13 +20,17 @@ export const authenticate = (mobileNum, password) => {
 
     try {
       const response = await axios.post(baseApiUrl + "Login/GetLogin", data);
-      // console.log(response.data);
-      if (response.data.Message.Code === messageType.success)
+      if (response.data.Message.MessageTypeValue === messageType.success) {
+        await AsyncStorage.setItem(
+          "user",
+          JSON.stringify(response.data.UserDetails)
+        );
+
         return dispatch({
           type: AUTHENTICATE,
           payload: response.data.UserDetails,
         });
-      else throw new Error(JSON.stringify(response.data.Message));
+      } else throw new Error(JSON.stringify(response.data.Message));
     } catch (error) {
       throw error;
     }
@@ -49,7 +54,7 @@ export const register = async (fname, lname, email, mobile, site, location) => {
       baseApiUrl + "Login/RequestSelfRegistration",
       data
     );
-    return response.Message;
+    return await response.data.Message;
   } catch (error) {
     return commonErrorMsg;
   }
@@ -69,19 +74,31 @@ export const getLoginKey = (mobile) => {
   };
 };
 
+// Synchronises asyncStorage data with internal state
+export const syncUserData = (jsonValue) => {
+  return async (dispatch) => {
+    try {
+      const user = await JSON.parse(jsonValue);
+
+      return dispatch({ type: AUTHENTICATE, payload: user });
+    } catch (err) {
+      return commonErrorMsg;
+    }
+  };
+};
+
+// Sends request to update email with user entered one
 export const updateEmail = (email, id) => {
   return async (dispatch) => {
-    const data = {
-      Email: email,
-      ProfileId: id,
-    };
+    const data = { Email: email, ProfileId: id };
 
     try {
       const response = await axios.post(
         baseApiUrl + "Common/UpdateEmail",
         data
       );
-      if (response.data.Message.Code === 2)
+
+      if (response.data.Message.MessageTypeValue === messageType.success)
         return dispatch({
           type: UPDATE_EMAIL,
           payload: response.data.UpdatedEmail,
@@ -93,6 +110,7 @@ export const updateEmail = (email, id) => {
   };
 };
 
+// Sends request to update mobile with user entered one
 export const updateMobile = (mobile, id) => {
   return async (dispatch) => {
     const data = {
@@ -105,7 +123,7 @@ export const updateMobile = (mobile, id) => {
         baseApiUrl + "Common/UpdateMobile",
         data
       );
-      if (response.data.Message.Code === 2)
+      if (response.data.Message.MessageTypeValue === messageType.success)
         return dispatch({
           type: UPDATE_MOBILE,
           payload: response.data.UpdatedMobile,
@@ -117,11 +135,11 @@ export const updateMobile = (mobile, id) => {
   };
 };
 
-// Clears Async Storage and app state.
+// Clears Async Storage and central app state.
 export const logout = () => {
   return async (dispatch) => {
     try {
-      //   AsyncStorage.removeItem("session");
+      AsyncStorage.removeItem("user");
 
       dispatch({
         type: LOGOUT,

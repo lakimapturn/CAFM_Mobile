@@ -9,7 +9,7 @@ const Error = (props) => {
     err = JSON.parse(props.error);
   }
 
-  switch (err?.Code) {
+  switch (err?.MessageTypeValue) {
     case messageType.error: {
       color = colors.red;
       break;
@@ -18,24 +18,31 @@ const Error = (props) => {
       color = colors.yellow;
       break;
     }
-    default:
-      color = colors.red;
+    case messageType.success: {
+      color = colors.green;
+    }
   }
+
+  if (!err) return;
 
   return (
     <Portal>
       <Dialog
         style={(styles.dialog, { backgroundColor: color })}
-        visible={err}
-        onDismiss={props.dismissError}
+        visible={props.visible}
+        onDismiss={props.dismiss}
       >
         <Dialog.Content style={styles.textContainer}>
-          <Text style={styles.text} variant="bodyMedium">
+          <Text style={styles.text} variant="bodyLarge">
             {err?.Text}
           </Text>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button textColor={colors.white} more="text" onPress={props.dismiss}>
+          <Button
+            textColor={colors.white}
+            more="contained"
+            onPress={props.dismiss}
+          >
             Dismiss
           </Button>
         </Dialog.Actions>

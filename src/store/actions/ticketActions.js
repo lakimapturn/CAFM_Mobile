@@ -1,5 +1,9 @@
 import axios from "axios";
-import { baseApiUrl } from "../../constants/constants";
+import {
+  baseApiUrl,
+  commonErrorMsg,
+  parameterType,
+} from "../../constants/constants";
 
 export const FETCHING = "FETCHING";
 export const ADD_TICKET = "ADD_TICKET";
@@ -50,6 +54,7 @@ export const getTickets = (
       return dispatch({ type: GET_TICKETS, tickets: response.data.TicketList });
     } catch (error) {
       console.log(error);
+      throw new Error(commonErrorMsg);
     }
   };
 };
@@ -67,6 +72,7 @@ export const addEditTicket = (ticket) => {
       else dispatch({ type: EDIT_TICKET, ticket: response.ticket });
     } catch (error) {
       console.log(error);
+      throw new Error(commonErrorMsg);
     }
   };
 };
@@ -79,14 +85,18 @@ export const getIssueList = () => {
       dispatch({ type: GET_ISSUE_LIST, payload: response.data });
     } catch (error) {
       console.log(error);
+      throw new Error(commonErrorMsg);
     }
   };
 };
 
+// Retrieving parameters for ticket filters
 export const getParameters = () => {
   return async (dispatch) => {
     try {
-      const data = { ParameterTypeIds: "63,5" };
+      const data = {
+        ParameterTypeIds: `${parameterType.periodType},${parameterType.ticketStatus}`,
+      };
       const response = await axios.post(
         baseApiUrl + "Common/GetParameter",
         data
@@ -94,6 +104,7 @@ export const getParameters = () => {
       dispatch({ type: GET_PARAMETERS, payload: response.data });
     } catch (error) {
       console.log(error);
+      throw new Error(commonErrorMsg);
     }
   };
 };

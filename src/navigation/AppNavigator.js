@@ -1,7 +1,10 @@
 import "react-native-gesture-handler";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  TransitionPresets,
+  createStackNavigator,
+} from "@react-navigation/stack";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
-import { Image, ImageBackground, View } from "react-native";
+import { Image, ImageBackground, Platform, View } from "react-native";
 import { SvgUri } from "react-native-svg";
 import { IconButton } from "react-native-paper";
 
@@ -26,6 +29,18 @@ const theme = {
 const App = createStackNavigator();
 
 const AppNavigator = () => {
+  let options = {};
+  // check if the background is dark when running this on android
+  if (Platform.OS === "ios") {
+    options = {
+      ...TransitionPresets.ScaleFromCenterAndroid,
+    };
+  }
+
+  // const Screen = (props) => {
+  //   <App.Screen {...props} options={options}/>
+  // }
+
   return (
     <NavigationContainer theme={theme}>
       <App.Navigator
@@ -34,21 +49,18 @@ const AppNavigator = () => {
           headerTitle: (props) => (
             <View>
               <Image source={require("../../assets/CAFM-Pro-Logo.png")} />
-              {/* <CAFMLogo {...props} height={40} width={120} /> */}
-              {/* <SvgUri
-                uri={
-                  "https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/ruby.svg"
-                }
-                height={20}
-                width={20}
-              /> */}
             </View>
           ),
+          headerBackTitleVisible: false,
         }}
       >
-        <App.Screen name="Login" component={Login} />
-        <App.Screen name="Register" component={Register} />
-        <App.Screen name="User Details" component={UserDetails} />
+        <App.Screen name="Login" component={Login} options={options} />
+        <App.Screen name="Register" component={Register} options={options} />
+        <App.Screen
+          name="User Details"
+          component={UserDetails}
+          options={options}
+        />
         <App.Screen
           name="Tickets"
           component={TicketView}
@@ -62,9 +74,14 @@ const AppNavigator = () => {
                 }}
               />
             ),
+            ...options,
           })}
         />
-        <App.Screen name="Add/Edit Ticket" component={AddEditTicket} />
+        <App.Screen
+          name="Add/Edit Ticket"
+          component={AddEditTicket}
+          options={options}
+        />
       </App.Navigator>
     </NavigationContainer>
   );
