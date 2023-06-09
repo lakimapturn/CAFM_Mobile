@@ -1,6 +1,10 @@
 import axios from "axios";
 
-import { baseApiUrl } from "../../constants/constants";
+import {
+  baseApiUrl,
+  commonErrorMsg,
+  messageType,
+} from "../../constants/constants";
 
 export const FETCHING = "FETCHING";
 export const AUTHENTICATE = "AUTHENTICATE";
@@ -16,15 +20,14 @@ export const authenticate = (mobileNum, password) => {
     try {
       const response = await axios.post(baseApiUrl + "Login/GetLogin", data);
       // console.log(response.data);
-      if (response.data.Message.Code === 2)
+      if (response.data.Message.Code === messageType.success)
         return dispatch({
           type: AUTHENTICATE,
           payload: response.data.UserDetails,
         });
-      else throw new Error(response.data.Message.Text);
+      else throw new Error(JSON.stringify(response.data.Message));
     } catch (error) {
-      console.log(error);
-      throw new Error(error.message);
+      throw error;
     }
   };
 };
@@ -46,22 +49,22 @@ export const register = async (fname, lname, email, mobile, site, location) => {
       baseApiUrl + "Login/RequestSelfRegistration",
       data
     );
-    return response.Message.Text;
+    return response.Message;
   } catch (error) {
-    return "Something went wrong! Try again later.";
+    return commonErrorMsg;
   }
 };
 
 // Requires no update of internal state
-export const getLoginKey = (mobile, keyInEmail, keyInMobile) => {
+export const getLoginKey = (mobile) => {
   return async (dispatch) => {
     const data = { Mobile: mobile, KeyInEmail: true, KeyInMobile: false };
 
     try {
       const response = await axios.post(baseApiUrl + "Login/GetLoginKey", data);
-      return response.Message.Text;
+      return response.Message;
     } catch (error) {
-      return "Something went wrong! Try again later.";
+      return commonErrorMsg;
     }
   };
 };
@@ -83,7 +86,7 @@ export const updateEmail = (email, id) => {
           type: UPDATE_EMAIL,
           payload: response.data.UpdatedEmail,
         });
-      else throw new Error(response.data.Message.Text);
+      else throw new Error(response.data.Message);
     } catch (error) {
       throw new Error(error.message);
     }

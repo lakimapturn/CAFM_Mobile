@@ -1,18 +1,12 @@
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
-import {
-  Card,
-  TextInput,
-  TextInputMask,
-  Button,
-  Text,
-  Banner,
-} from "react-native-paper";
+import { Card, TextInput, TextInputMask, Button } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 
 import { authenticate } from "../store/actions/userActions";
-import { screens } from "../constants/constants";
+import { colors, screens } from "../constants/constants";
 import Loading from "../components/Loading";
+import Error from "../components/Error";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -38,15 +32,12 @@ const Login = (props) => {
       setPassword("");
     } catch (err) {
       setError(err.message);
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const registerNewUser = () => {
-    props.navigation.reset({
-      index: 0,
-      routes: [{ name: screens.register }],
-    });
+    props.navigation.replace(screens.register);
   };
 
   return (
@@ -54,17 +45,15 @@ const Login = (props) => {
       {isLoading ? (
         <Loading />
       ) : (
-        <View style={{ padding: "5%" }}>
-          <Card mode="elevated">
+        <View style={styles.page}>
+          <Card style={styles.card} mode="elevated">
             <Card.Content>
               <TextInput
                 mode="outlined"
                 label="Mobile"
-                //   render={(props) => (
-                //     <TextInputMask {...props} mask="+[00] [000] [000] [000]" />
-                //   )}
                 right={<TextInput.Icon icon="cellphone" />}
                 onChangeText={(text) => setMobileNum(text)}
+                style={styles.input}
               />
               <TextInput
                 mode="outlined"
@@ -72,26 +61,47 @@ const Login = (props) => {
                 secureTextEntry
                 right={<TextInput.Icon icon="key" />}
                 onChangeText={(text) => setPassword(text)}
+                style={styles.input}
               />
               <Button
                 disabled={isButtonDisabled}
                 mode="elevated"
                 onPress={login}
+                style={styles.authButton}
               >
                 Login
               </Button>
-            </Card.Content>
-            <Card.Actions>
-              <Button mode="elevated" onPress={registerNewUser}>
+              <Button
+                style={styles.authButton}
+                mode="text"
+                onPress={registerNewUser}
+              >
                 Register new user
               </Button>
-            </Card.Actions>
+            </Card.Content>
           </Card>
-          {/* <Banner visible={error}>{error}</Banner> */}
+          <Error error={error} dismiss={() => setError()} />
         </View>
       )}
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  page: {
+    top: "19%",
+    height: "100%",
+  },
+  card: {
+    margin: "10%",
+  },
+  input: {
+    marginBottom: "3%",
+  },
+  authButton: {
+    marginHorizontal: "5%",
+    marginVertical: "2%",
+  },
+});
 
 export default Login;

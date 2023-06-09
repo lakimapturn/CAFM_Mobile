@@ -65,7 +65,7 @@ const Register = (props) => {
             </>
           ) : (
             <>
-              <Button onPress={returnToLogin} textColor="red" mode="elevated">
+              <Button onPress={returnToLogin} textColor="red" mode="text">
                 Cancel
               </Button>
               <Button
