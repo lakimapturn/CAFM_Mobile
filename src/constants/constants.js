@@ -18,6 +18,15 @@ export const statusColors = {
   created: colors.cyan,
 };
 
+export const statusColorIds = {
+  1: statusColors.created,
+  2: statusColors.assigned,
+  3: statusColors.resolved,
+  4: statusColors.onHold,
+  8: statusColors.cancelled,
+  7: statusColors.closed,
+};
+
 export const screens = {
   login: "Login",
   register: "Register",
@@ -42,6 +51,29 @@ export const initialRegistrationState = {
   isLoading: false,
   msg: { MessageTypeValue: -1, Text: "" },
   showError: false,
+};
+
+export const initalTicketFilterState = {
+  FromDate: "",
+  ToDate: "",
+  PageIndex: 0,
+  PageSize: 25,
+  SearchKey: "",
+  SiteIds: "",
+  LocationIds: "",
+  StatusIds: "1,2,3,4,5,6,7,8",
+  SortBy: "TicketDate",
+  SortOrder: -1,
+  TicketId: 0,
+  LoggedUserId: 1171,
+  LicenseeId: 1,
+};
+
+export const filterActions = {
+  updateDate: "UPDATE_DATE",
+  nextPage: "NEXT_PAGE",
+  prevPage: "PREV_PAGE",
+  setStatusId: "SET_STATUS_ID",
 };
 
 // export const initialRegistrationState = {

@@ -6,6 +6,7 @@ import {
 } from "../../constants/constants";
 
 export const FETCHING = "FETCHING";
+export const STOP_FETCHING = "STOP_FETCHING";
 export const ADD_TICKET = "ADD_TICKET";
 export const GET_TICKETS = "GET_TICKETS";
 export const EDIT_TICKET = "EDIT_TICKET";
@@ -13,45 +14,22 @@ export const GET_ISSUE_LIST = "GET_ISSUE_LIST";
 export const GET_PARAMETERS = "GET_PARAMETERS";
 
 // Fetching tickets from backend
-export const getTickets = (
-  fromDate,
-  toDate,
-  pgIndex,
-  pgSize,
-  searchKey,
-  siteIds,
-  locationIds,
-  statusIds,
-  sortBy,
-  sortOrder,
-  TicketId,
-  LoggedUserId,
-  LicenseeId
-) => {
+export const getTickets = (filters) => {
   return async (dispatch) => {
-    const data = {
-      FromDate: fromDate,
-      ToDate: toDate,
-      PageIndex: pgIndex,
-      PageSize: pgSize,
-      SearchKey: searchKey,
-      SiteIds: siteIds,
-      LocationIds: locationIds,
-      StatusIds: statusIds,
-      SortBy: sortBy,
-      SortOrder: sortOrder,
-      TicketId,
-      LoggedUserId,
-      LicenseeId,
-    };
-
+    dispatch({ type: FETCHING });
     try {
       const response = await axios.post(
         baseApiUrl + "Ticket/GetTicketList",
-        data
+        filters
       );
 
-      return dispatch({ type: GET_TICKETS, tickets: response.data.TicketList });
+      return dispatch({
+        type: GET_TICKETS,
+        payload: {
+          tickets: response.data.TicketList,
+          totalTickets: response.data.TotalCount,
+        },
+      });
     } catch (error) {
       console.log(error);
       throw new Error(commonErrorMsg);
@@ -62,6 +40,8 @@ export const getTickets = (
 // Adding or editing ticket to backend
 export const addEditTicket = (ticket) => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     try {
       const response = await axios.post(
         baseApiUrl + "Ticket/AddUpdateTicket",
@@ -80,9 +60,11 @@ export const addEditTicket = (ticket) => {
 // Fetching issue list for dropdown menu
 export const getIssueList = () => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     try {
-      const response = await axios.get(baseApiUrl + "Common/GetIssueList");
-      dispatch({ type: GET_ISSUE_LIST, payload: response.data });
+      const response = await axios.post(baseApiUrl + "Common/GetIssueList", {});
+      await dispatch({ type: GET_ISSUE_LIST, payload: response.data });
     } catch (error) {
       console.log(error);
       throw new Error(commonErrorMsg);
@@ -93,6 +75,8 @@ export const getIssueList = () => {
 // Retrieving parameters for ticket filters
 export const getParameters = () => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     try {
       const data = {
         ParameterTypeIds: `${parameterType.periodType},${parameterType.ticketStatus}`,

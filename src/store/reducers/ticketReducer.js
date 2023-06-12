@@ -6,6 +6,7 @@ import {
   GET_ISSUE_LIST,
   GET_PARAMETERS,
 } from "../actions/ticketActions";
+import { STOP_FETCHING } from "../actions/userActions";
 
 const initialState = {
   isFetching: false,
@@ -29,6 +30,7 @@ const initialState = {
   statuses: [],
   dates: [],
   issues: [],
+  totalTickets: 0,
 };
 
 const ticketReducer = (state = initialState, action) => {
@@ -40,11 +42,19 @@ const ticketReducer = (state = initialState, action) => {
       });
     }
 
+    case STOP_FETCHING: {
+      return Object.assign({}, state, {
+        ...state,
+        isFetching: false,
+      });
+    }
+
     case GET_TICKETS: {
       return Object.assign({}, state, {
         ...state,
         isFetching: false,
         tickets: action.payload.tickets,
+        totalTickets: action.payload.totalTickets,
       });
     }
 
@@ -76,7 +86,7 @@ const ticketReducer = (state = initialState, action) => {
       Object.assign({}, state, {
         ...state,
         isFetching: false,
-        issues: action.payload.issues,
+        issues: action.payload.IssueList,
       });
     }
 
@@ -84,12 +94,8 @@ const ticketReducer = (state = initialState, action) => {
       Object.assign({}, state, {
         ...state,
         isFetching: false,
-        statuses: action.payload.parameters.filter(
-          (item) => item.ParameterTypeId === 5
-        ),
-        dates: action.payload.parameters.filter(
-          (item) => item.ParameterTypeId === 63
-        ),
+        statuses: action.payload.filter((item) => item.ParameterTypeId === 5),
+        dates: action.payload.filter((item) => item.ParameterTypeId === 63),
       });
     }
 

@@ -1,6 +1,8 @@
 import {
   AUTHENTICATE,
   FETCHING,
+  LOGOUT,
+  STOP_FETCHING,
   UPDATE_EMAIL,
   UPDATE_MOBILE,
 } from "../actions/userActions";
@@ -34,6 +36,13 @@ const userReducer = (state = initialState, action) => {
       });
     }
 
+    case STOP_FETCHING: {
+      return Object.assign({}, state, {
+        ...state,
+        isFetching: false,
+      });
+    }
+
     case AUTHENTICATE: {
       return Object.assign({}, state, {
         ...state,
@@ -55,6 +64,12 @@ const userReducer = (state = initialState, action) => {
         ...state,
         isFetching: false,
         Mobile: action.payload,
+      });
+    }
+
+    case LOGOUT: {
+      return Object.assign({}, state, {
+        ...initialState,
       });
     }
 

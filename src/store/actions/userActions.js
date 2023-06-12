@@ -8,6 +8,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const FETCHING = "FETCHING";
+export const STOP_FETCHING = "STOP_FETCHING";
 export const AUTHENTICATE = "AUTHENTICATE";
 export const UPDATE_EMAIL = "UPDATE_EMAIL";
 export const UPDATE_MOBILE = "UPDATE_MOBILE";
@@ -16,6 +17,8 @@ export const LOGOUT = "LOGOUT";
 // Sends request to backend to Authenticate user
 export const authenticate = (mobileNum, password) => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     const data = { UserName: mobileNum, Password: password };
 
     try {
@@ -62,7 +65,7 @@ export const register = async (fname, lname, email, mobile, site, location) => {
 
 // Requires no update of internal state
 export const getLoginKey = (mobile) => {
-  return async (dispatch) => {
+  return async () => {
     const data = { Mobile: mobile, KeyInEmail: true, KeyInMobile: false };
 
     try {
@@ -77,10 +80,12 @@ export const getLoginKey = (mobile) => {
 // Synchronises asyncStorage data with internal state
 export const syncUserData = (jsonValue) => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     try {
       const user = await JSON.parse(jsonValue);
 
-      return dispatch({ type: AUTHENTICATE, payload: user });
+      dispatch({ type: AUTHENTICATE, payload: user });
     } catch (err) {
       return commonErrorMsg;
     }
@@ -90,6 +95,8 @@ export const syncUserData = (jsonValue) => {
 // Sends request to update email with user entered one
 export const updateEmail = (email, id) => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     const data = { Email: email, ProfileId: id };
 
     try {
@@ -113,6 +120,8 @@ export const updateEmail = (email, id) => {
 // Sends request to update mobile with user entered one
 export const updateMobile = (mobile, id) => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     const data = {
       Mobile: mobile,
       ProfileId: id,
@@ -138,6 +147,8 @@ export const updateMobile = (mobile, id) => {
 // Clears Async Storage and central app state.
 export const logout = () => {
   return async (dispatch) => {
+    dispatch({ type: FETCHING });
+
     try {
       AsyncStorage.removeItem("user");
 

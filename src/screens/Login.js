@@ -19,23 +19,6 @@ const Login = (props) => {
   const [error, setError] = useState();
   const [showError, setShowError] = useState(false);
 
-  // Checks if the user's credentials are saved and logs him in automatically
-  useEffect(() => {
-    const loginUser = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem("user");
-        if (jsonValue !== null) {
-          await dispatch(syncUserData(jsonValue));
-          await props.navigation.replace(screens.tickets);
-        }
-      } catch (err) {
-        setError(err);
-        setShowError(true);
-      }
-    };
-    loginUser();
-  }, []);
-
   // Runs everytime mobileNum or password change. Used for validating the 2 fields
   useEffect(() => {
     if (mobileNum.length > 2 && password.length > 2) setIsButtonDisabled(false);
