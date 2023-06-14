@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authenticate, syncUserData } from "../store/actions/userActions";
 import { screens } from "../constants/constants";
 import Loading from "../components/Loading";
-import Error from "../components/Error";
+import Message from "../components/Message";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -29,7 +29,7 @@ const Login = (props) => {
     setIsLoading(true);
     try {
       await dispatch(authenticate(mobileNum, password));
-      await props.navigation.replace(screens.tickets);
+      await props.navigation.replace(screens.home);
     } catch (err) {
       setError(err.message);
       setShowError(true);
@@ -49,6 +49,22 @@ const Login = (props) => {
     setShowError(false);
     setError();
   };
+
+  useEffect(() => {
+    const loginUser = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("user");
+        if (jsonValue !== null) {
+          await dispatch(syncUserData(jsonValue));
+          await props.navigation.replace(screens.home);
+        }
+      } catch (err) {
+        setError(err);
+        setShowError(true);
+      }
+    };
+    loginUser();
+  }, []);
 
   return (
     <>
@@ -96,7 +112,7 @@ const Login = (props) => {
               </Button>
             </Card.Content>
           </Card>
-          <Error error={error} visible={showError} dismiss={dismissError} />
+          <Message error={error} visible={showError} dismiss={dismissError} />
         </View>
       )}
     </>

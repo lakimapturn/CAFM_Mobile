@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 
 import Login from "../screens/Login";
 import AddEditTicket from "../screens/AddEditTicket";
-import TicketList from "../screens/TicketList";
+import Home from "../screens/Home";
 import CAFMLogo from "../../assets/CAFM-Pro-Logo.svg";
 import { screens } from "../constants/constants";
 import Register from "../screens/Register";
@@ -47,6 +47,7 @@ const AppNavigator = (props) => {
     if (props.isLoggedIn) {
       try {
         dispatch(syncUserData());
+        isLoggedIn = true;
       } catch (error) {
         isLoggedIn = false;
       }
@@ -70,41 +71,37 @@ const AppNavigator = (props) => {
           headerBackTitleVisible: false,
         }}
       >
-        {!props.isLoggedIn ? (
-          <>
-            <App.Screen name="Login" component={Login} options={options} />
-            <App.Screen
-              name="Register"
-              component={Register}
-              options={options}
-            />
-          </>
-        ) : (
-          <>
-            <App.Screen
-              name="Tickets"
-              component={TicketList}
-              options={({ navigation }) => ({
-                headerRight: (props) => (
-                  <IconButton
-                    icon="information-variant"
-                    size={30}
-                    onPress={() => {
-                      navigation.navigate(screens.userDetails);
-                    }}
-                  />
-                ),
-                ...options,
-              })}
-            />
-            <App.Screen
-              name="User Details"
-              component={UserDetails}
-              options={options}
-            />
-            <App.Screen name="Add/Edit Ticket" component={AddEditTicket} />
-          </>
-        )}
+        {/* {!props.isLoggedIn ? ( */}
+        <>
+          <App.Screen name="Login" component={Login} options={options} />
+          <App.Screen name="Register" component={Register} options={options} />
+        </>
+        {/* ) : ( */}
+        <>
+          <App.Screen
+            name="Home"
+            component={Home}
+            options={({ navigation }) => ({
+              headerRight: (props) => (
+                <IconButton
+                  icon="information-variant"
+                  size={30}
+                  onPress={() => {
+                    navigation.navigate(screens.userDetails);
+                  }}
+                />
+              ),
+              ...options,
+            })}
+          />
+          <App.Screen
+            name="User Details"
+            component={UserDetails}
+            options={options}
+          />
+          <App.Screen name="Add/Edit Ticket" component={AddEditTicket} />
+        </>
+        {/* )} */}
       </App.Navigator>
     </NavigationContainer>
   );

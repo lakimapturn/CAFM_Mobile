@@ -58,32 +58,30 @@ const ticketReducer = (state = initialState, action) => {
       });
     }
 
-    case ADD_TICKET: {
-      return Object.assign({}, state, {
-        ...state,
-        isFetching: false,
-        tickets: [action.payload.ticket, ...state.tickets],
-      });
-    }
+    // case ADD_TICKET: {
+    //   return Object.assign({}, state, {
+    //     ...state,
+    //     isFetching: false,
+    //     tickets: [action.payload, ...state.tickets],
+    //   });
+    // }
 
-    case EDIT_TICKET: {
-      // updating existing state to contain new ticket
-      const edittedTickets = state.tickets;
-      edittedTickets[
-        state.tickets.findIndex(
-          (ticket) => ticket.id === action.payload.ticket.id
-        )
-      ] = action.payload.ticket.id;
+    // case EDIT_TICKET: {
+    //   // updating existing state to contain new ticket
+    //   const edittedTickets = state.tickets;
+    //   edittedTickets[
+    //     state.tickets.findIndex((ticket) => ticket.id === action.payload.id)
+    //   ] = action.payload.id;
 
-      Object.assign({}, state, {
-        ...state,
-        isFetching: false,
-        tickets: edittedTickets,
-      });
-    }
+    //   return Object.assign({}, state, {
+    //     ...state,
+    //     isFetching: false,
+    //     tickets: edittedTickets,
+    //   });
+    // }
 
     case GET_ISSUE_LIST: {
-      Object.assign({}, state, {
+      return Object.assign({}, state, {
         ...state,
         isFetching: false,
         issues: action.payload.IssueList,
@@ -91,7 +89,7 @@ const ticketReducer = (state = initialState, action) => {
     }
 
     case GET_PARAMETERS: {
-      Object.assign({}, state, {
+      return Object.assign({}, state, {
         ...state,
         isFetching: false,
         statuses: action.payload.filter((item) => item.ParameterTypeId === 5),

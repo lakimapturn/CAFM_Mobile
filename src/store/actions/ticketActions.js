@@ -47,9 +47,10 @@ export const addEditTicket = (ticket) => {
         baseApiUrl + "Ticket/AddUpdateTicket",
         ticket
       );
-      if (ticket.id === 0)
-        dispatch({ type: ADD_TICKET, ticket: response.ticket });
-      else dispatch({ type: EDIT_TICKET, ticket: response.ticket });
+
+      const type = ticket.id === 0 ? ADD_TICKET : EDIT_TICKET;
+      // return dispatch({ type: type, payload: response.data.ReturnTicketId });
+      return dispatch({ type: STOP_FETCHING });
     } catch (error) {
       console.log(error);
       throw new Error(commonErrorMsg);
@@ -64,7 +65,7 @@ export const getIssueList = () => {
 
     try {
       const response = await axios.post(baseApiUrl + "Common/GetIssueList", {});
-      await dispatch({ type: GET_ISSUE_LIST, payload: response.data });
+      return await dispatch({ type: GET_ISSUE_LIST, payload: response.data });
     } catch (error) {
       console.log(error);
       throw new Error(commonErrorMsg);
@@ -85,7 +86,10 @@ export const getParameters = () => {
         baseApiUrl + "Common/GetParameter",
         data
       );
-      dispatch({ type: GET_PARAMETERS, payload: response.data });
+      return dispatch({
+        type: GET_PARAMETERS,
+        payload: response.data.ParameterList,
+      });
     } catch (error) {
       console.log(error);
       throw new Error(commonErrorMsg);

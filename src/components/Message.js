@@ -2,9 +2,10 @@ import { StyleSheet } from "react-native";
 import { Portal, Dialog, Text, Button } from "react-native-paper";
 import { colors, messageType } from "../constants/constants";
 
-const Error = (props) => {
+const Message = (props) => {
   let err;
   let color;
+
   if (props.error) {
     err = JSON.parse(props.error);
   }
@@ -67,4 +68,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Error;
+export default Message;

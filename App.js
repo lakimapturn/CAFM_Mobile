@@ -12,7 +12,7 @@ import AppNavigator from "./src/navigation/AppNavigator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const appReducer = {
-  auth: userReducer,
+  user: userReducer,
   ticket: ticketReducer,
 };
 

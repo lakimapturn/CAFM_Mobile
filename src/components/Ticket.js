@@ -12,8 +12,13 @@ const Ticket = (props) => {
     <Card type="elevated" style={styles.card}>
       <Card.Title
         title={`#${ticket.TicketNo}`}
+        titleVariant="titleLarge"
         right={(props) => (
-          <Text style={[styles.statusText, { color: statusColor }]} {...props}>
+          <Text
+            variant="bodyLarge"
+            style={[styles.statusText, { color: statusColor }]}
+            {...props}
+          >
             {ticket.TicketStatusText}
           </Text>
         )}

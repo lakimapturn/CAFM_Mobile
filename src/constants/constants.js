@@ -30,7 +30,7 @@ export const statusColorIds = {
 export const screens = {
   login: "Login",
   register: "Register",
-  tickets: "Tickets",
+  home: "Home",
   addEditTicket: "Add/Edit Ticket",
   userDetails: "User Details",
 };
@@ -53,7 +53,7 @@ export const initialRegistrationState = {
   showError: false,
 };
 
-export const initalTicketFilterState = {
+export const initialTicketFilterState = {
   FromDate: "",
   ToDate: "",
   PageIndex: 0,
@@ -67,6 +67,27 @@ export const initalTicketFilterState = {
   TicketId: 0,
   LoggedUserId: 1171,
   LicenseeId: 1,
+  showFilters: false,
+};
+
+export const initialTicketState = {
+  issueDetails: "",
+  visitTime: "",
+  files: [],
+  issuesVisible: false,
+  issue: 0,
+  msg: "",
+  showMsg: false,
+};
+
+export const ticketActions = {
+  updateIssueDetails: "UPDATE_ISSUE_DETAILS",
+  updateVisitTime: "UPDATE_VISIT_TIME",
+  chooseFile: "CHOOSE_FILE",
+  setIssuesVisible: "SET_ISSUES_VISIBLE",
+  chooseIssue: "CHOOSE_ISSUE",
+  showMsg: "SHOW_MESSAGE",
+  hideMsg: "HIDE_MESSAGE",
 };
 
 export const filterActions = {
@@ -74,6 +95,8 @@ export const filterActions = {
   nextPage: "NEXT_PAGE",
   prevPage: "PREV_PAGE",
   setStatusId: "SET_STATUS_ID",
+  toggleFilters: "TOGGLE_FILTERS",
+  reset: "RESET",
 };
 
 // export const initialRegistrationState = {
