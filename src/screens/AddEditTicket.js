@@ -198,7 +198,7 @@ const AddEditTicket = (props) => {
 };
 
 const styles = StyleSheet.create({
-  container: { height: "100%", backgroundColor: colors.white },
+  container: { flex: 1, backgroundColor: colors.white },
   title: { textAlign: "center", marginVertical: "2%" },
   divider: { marginVertical: "2%" },
   inputContainer: { padding: "5%" },

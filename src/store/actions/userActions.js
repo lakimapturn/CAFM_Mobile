@@ -122,10 +122,7 @@ export const updateMobile = (mobile, id) => {
   return async (dispatch) => {
     dispatch({ type: FETCHING });
 
-    const data = {
-      Mobile: mobile,
-      ProfileId: id,
-    };
+    const data = { Mobile: mobile, ProfileId: id };
 
     try {
       const response = await axios.post(

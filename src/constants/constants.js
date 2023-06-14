@@ -33,6 +33,7 @@ export const screens = {
   home: "Home",
   addEditTicket: "Add/Edit Ticket",
   userDetails: "User Details",
+  editUserDetails: "Edit User Details",
 };
 
 export const messageType = {
@@ -68,6 +69,7 @@ export const initialTicketFilterState = {
   LoggedUserId: 1171,
   LicenseeId: 1,
   showFilters: false,
+  animationLoading: false,
 };
 
 export const initialTicketState = {
@@ -97,6 +99,7 @@ export const filterActions = {
   setStatusId: "SET_STATUS_ID",
   toggleFilters: "TOGGLE_FILTERS",
   reset: "RESET",
+  showAnimationLoading: "SHOW_ANIMATION_LOADING",
 };
 
 // export const initialRegistrationState = {
@@ -123,6 +126,11 @@ export const registrationActions = {
   showMsg: "SHOW_MESSAGE",
   hideMsg: "HIDE_MESSAGE",
   reset: "RESET",
+};
+
+export const userDetailOptions = {
+  email: "EMAIL",
+  mobile: "MOBILE",
 };
 
 export const parameterType = {

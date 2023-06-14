@@ -19,6 +19,7 @@ import Register from "../screens/Register";
 import UserDetails from "../screens/UserDetails";
 import { useEffect } from "react";
 import { syncUserData } from "../store/actions/userActions";
+import EditUserDetails from "../screens/EditUserDetails";
 
 const theme = {
   ...DefaultTheme,
@@ -73,13 +74,21 @@ const AppNavigator = (props) => {
       >
         {/* {!props.isLoggedIn ? ( */}
         <>
-          <App.Screen name="Login" component={Login} options={options} />
-          <App.Screen name="Register" component={Register} options={options} />
+          <App.Screen
+            name={screens.login}
+            component={Login}
+            options={options}
+          />
+          <App.Screen
+            name={screens.register}
+            component={Register}
+            options={options}
+          />
         </>
         {/* ) : ( */}
         <>
           <App.Screen
-            name="Home"
+            name={screens.home}
             component={Home}
             options={({ navigation }) => ({
               headerRight: (props) => (
@@ -95,11 +104,16 @@ const AppNavigator = (props) => {
             })}
           />
           <App.Screen
-            name="User Details"
+            name={screens.userDetails}
             component={UserDetails}
             options={options}
           />
-          <App.Screen name="Add/Edit Ticket" component={AddEditTicket} />
+          <App.Screen name={screens.addEditTicket} component={AddEditTicket} />
+          <App.Screen
+            name={screens.editUserDetails}
+            component={EditUserDetails}
+            options={options}
+          />
         </>
         {/* )} */}
       </App.Navigator>

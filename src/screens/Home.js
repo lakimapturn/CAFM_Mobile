@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Animated, Dimensions, FlatList, StyleSheet, View } from "react-native";
+import { Animated, Dimensions, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 
 import Loading from "../components/Loading";
@@ -9,19 +9,16 @@ import {
   getParameters,
   getTickets,
 } from "../store/actions/ticketActions";
-import Ticket from "../components/Ticket";
 import {
-  colors,
   filterActions,
   initialTicketFilterState,
   screens,
 } from "../constants/constants";
-import { Button, IconButton, Text } from "react-native-paper";
+import { Button, Divider, IconButton, Text } from "react-native-paper";
 import { getDropdownData } from "../constants/functions";
 import FilterView from "../components/FilterView";
 import TicketList from "../components/TicketList";
-
-const screenWidth = Dimensions.get("screen").width;
+import { StyleSheet } from "react-native";
 
 const filterReducer = (state, action) => {
   switch (action.type) {
@@ -45,6 +42,10 @@ const filterReducer = (state, action) => {
       return { ...state, showFilters: !state.showFilters };
     }
 
+    case filterActions.showAnimationLoading: {
+      return { ...state, animationLoading: action.payload };
+    }
+
     case filterActions.reset: {
       return initialTicketFilterState;
     }
@@ -53,6 +54,8 @@ const filterReducer = (state, action) => {
       return state;
   }
 };
+
+const screenHeight = Dimensions.get("screen").height;
 
 const Home = (props) => {
   const dispatch = useDispatch();
@@ -72,8 +75,7 @@ const Home = (props) => {
   const [dateDropDown, setDateDropdown] = useState([]);
   const [statusDropDown, setStatusDropdown] = useState([]);
 
-  const filtersPosition = useState(new Animated.Value(0))[0];
-  const listPosition = useState(new Animated.Value(screenWidth))[0];
+  const filtersPosition = useState(new Animated.Value(screenHeight))[0];
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -122,17 +124,9 @@ const Home = (props) => {
   };
 
   const toggleFilters = () => {
-    const newPos = filterState.showFilters ? -screenWidth : 0;
-
     Animated.timing(filtersPosition, {
-      toValue: screenWidth + newPos,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-
-    Animated.timing(listPosition, {
-      toValue: newPos,
-      duration: 1000,
+      toValue: filterState.showFilters ? screenHeight : 0,
+      duration: 700,
       useNativeDriver: true,
     }).start();
 
@@ -158,7 +152,7 @@ const Home = (props) => {
       {isLoading ? (
         <Loading />
       ) : (
-        <View>
+        <View style={styles.container}>
           <View style={styles.header}>
             <Text variant="headlineSmall" style={styles.welcomeText}>
               Welcome, {user?.FirstName}
@@ -183,44 +177,24 @@ const Home = (props) => {
               />
             </View>
           </View>
-          <View>
-            <Animated.View
-              style={[
-                styles.animatedView,
-                {
-                  transform: [{ translateX: filtersPosition }],
-                },
-              ]}
-            >
-              <TicketList
-                editTicket={(ticket) => addEditTicket(ticket)}
-                tickets={tickets}
-                page={filterState.PageIndex + 1}
-                prevPage={() =>
-                  filterDispatch({ type: filterActions.prevPage })
-                }
-                nextPage={() =>
-                  filterDispatch({ type: filterActions.nextPage })
-                }
-              />
-            </Animated.View>
-            <Animated.View
-              style={[
-                styles.animatedView,
-                {
-                  transform: [{ translateX: listPosition }],
-                },
-              ]}
-            >
-              <FilterView
-                visible={filterState.showFilters}
-                dates={dateDropDown}
-                statuses={statusDropDown}
-                onSelect={(type, payload) => onSelect(type, payload)}
-                confirm={filter}
-                cancel={cancelFilters}
-              />
-            </Animated.View>
+          <Divider horizontalInset bold />
+          <View style={styles.container}>
+            <TicketList
+              editTicket={(ticket) => addEditTicket(ticket)}
+              tickets={tickets}
+              page={filterState.PageIndex + 1}
+              prevPage={() => filterDispatch({ type: filterActions.prevPage })}
+              nextPage={() => filterDispatch({ type: filterActions.nextPage })}
+            />
+
+            <FilterView
+              filtersPosition={filtersPosition}
+              dates={dateDropDown}
+              statuses={statusDropDown}
+              onSelect={(type, payload) => onSelect(type, payload)}
+              confirm={filter}
+              cancel={cancelFilters}
+            />
           </View>
         </View>
       )}
@@ -229,6 +203,9 @@ const Home = (props) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   header: {
     padding: "3%",
     display: "flex",
@@ -243,11 +220,6 @@ const styles = StyleSheet.create({
   buttonView: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  animatedView: {
-    // top: 0,
-    // position: "absolute",
-    width: "100%",
   },
 });
 
