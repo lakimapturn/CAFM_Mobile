@@ -5,36 +5,52 @@ import { colors, messageType } from "../constants/constants";
 const Message = (props) => {
   let err;
   let color;
+  let icon;
 
   if (props.error) {
-    err = JSON.parse(props.error);
+    try {
+      err = JSON.parse(props.error);
+    } catch (error) {
+      err = props.error;
+    }
   }
 
   switch (err?.MessageTypeValue) {
     case messageType.error: {
       color = colors.red;
+      icon = "alpha-x-circle";
       break;
     }
     case messageType.warning: {
       color = colors.yellow;
+      icon = "alert-circle-outline";
       break;
     }
     case messageType.success: {
       color = colors.green;
+      icon = "check-decagram-outline";
+      break;
     }
+    default:
+      color = colors.grey;
   }
 
   if (!err) return;
 
+  const onDismissMessage = () => {
+    props.dismiss(messageType.success === err?.MessageTypeValue);
+  };
+
   return (
     <Portal>
       <Dialog
-        style={(styles.dialog, { backgroundColor: color })}
+        style={(styles.dialog, { backgroundColor: color, borderColor: color })}
         visible={props.visible}
         onDismiss={props.dismiss}
       >
+        {icon && <Dialog.Icon icon={icon} color={colors.white} size={35} />}
         <Dialog.Content style={styles.textContainer}>
-          <Text style={styles.text} variant="bodyLarge">
+          <Text style={styles.text} variant="titleMedium">
             {err?.Text}
           </Text>
         </Dialog.Content>
@@ -42,7 +58,7 @@ const Message = (props) => {
           <Button
             textColor={colors.white}
             more="contained"
-            onPress={props.dismiss}
+            onPress={onDismissMessage}
           >
             Dismiss
           </Button>
@@ -54,7 +70,8 @@ const Message = (props) => {
 
 const styles = StyleSheet.create({
   dialog: {
-    backgroundColor: "red",
+    borderWidth: 2,
+    opacity: 0.5,
   },
   textContainer: {
     paddingVertical: 0,

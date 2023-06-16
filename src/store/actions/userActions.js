@@ -1,11 +1,10 @@
-import axios from "axios";
-
 import {
-  baseApiUrl,
+  apiUrls,
   commonErrorMsg,
   messageType,
 } from "../../constants/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { axiosPost } from "../../constants/functions";
 
 export const FETCHING = "FETCHING";
 export const STOP_FETCHING = "STOP_FETCHING";
@@ -22,7 +21,7 @@ export const authenticate = (mobileNum, password) => {
     const data = { UserName: mobileNum, Password: password };
 
     try {
-      const response = await axios.post(baseApiUrl + "Login/GetLogin", data);
+      const response = await axiosPost(apiUrls.login, data);
       if (response.data.Message.MessageTypeValue === messageType.success) {
         await AsyncStorage.setItem(
           "user",
@@ -35,6 +34,7 @@ export const authenticate = (mobileNum, password) => {
         });
       } else throw new Error(JSON.stringify(response.data.Message));
     } catch (error) {
+      dispatch({ type: STOP_FETCHING });
       throw error;
     }
   };
@@ -53,10 +53,7 @@ export const register = async (fname, lname, email, mobile, site, location) => {
   };
 
   try {
-    const response = await axios.post(
-      baseApiUrl + "Login/RequestSelfRegistration",
-      data
-    );
+    const response = await axiosPost(apiUrls.register, data);
     return await response.data.Message;
   } catch (error) {
     return commonErrorMsg;
@@ -69,7 +66,7 @@ export const getLoginKey = (mobile) => {
     const data = { Mobile: mobile, KeyInEmail: true, KeyInMobile: false };
 
     try {
-      const response = await axios.post(baseApiUrl + "Login/GetLoginKey", data);
+      const response = await axiosPost(apiUrls.loginKey, data);
       return response.Message;
     } catch (error) {
       return commonErrorMsg;
@@ -87,6 +84,7 @@ export const syncUserData = (jsonValue) => {
 
       dispatch({ type: AUTHENTICATE, payload: user });
     } catch (err) {
+      dispatch({ type: STOP_FETCHING });
       return commonErrorMsg;
     }
   };
@@ -100,10 +98,7 @@ export const updateEmail = (email, id) => {
     const data = { Email: email, ProfileId: id };
 
     try {
-      const response = await axios.post(
-        baseApiUrl + "Common/UpdateEmail",
-        data
-      );
+      const response = await axiosPost(apiUrls.updateEmail, data);
 
       if (response.data.Message.MessageTypeValue === messageType.success)
         return dispatch({
@@ -112,6 +107,7 @@ export const updateEmail = (email, id) => {
         });
       else throw new Error(response.data.Message);
     } catch (error) {
+      dispatch({ type: STOP_FETCHING });
       throw new Error(error.message);
     }
   };
@@ -125,10 +121,7 @@ export const updateMobile = (mobile, id) => {
     const data = { Mobile: mobile, ProfileId: id };
 
     try {
-      const response = await axios.post(
-        baseApiUrl + "Common/UpdateMobile",
-        data
-      );
+      const response = await axiosPost(apiUrls.updateMobile, data);
       if (response.data.Message.MessageTypeValue === messageType.success)
         return dispatch({
           type: UPDATE_MOBILE,
@@ -136,6 +129,7 @@ export const updateMobile = (mobile, id) => {
         });
       else throw new Error(response.data.Message.Text);
     } catch (error) {
+      dispatch({ type: STOP_FETCHING });
       throw new Error(error.message);
     }
   };
@@ -153,6 +147,7 @@ export const logout = () => {
         type: LOGOUT,
       });
     } catch (err) {
+      dispatch({ type: STOP_FETCHING });
       throw new Error("Failed to logout user, try again later");
     }
   };

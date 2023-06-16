@@ -2,11 +2,51 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { Button } from "react-native-paper";
 import { Animated, StyleSheet, View } from "react-native";
 
-import { colors, filterActions } from "../constants/constants";
+import { colors, initialTicketFilterState } from "../constants/constants";
+import { useState } from "react";
 
 const maxDropDownHeight = 100;
+const defaultDateState = {
+  key: initialTicketFilterState.DatePeriod,
+  value: "",
+};
+const defaultStatusState = {
+  key: initialTicketFilterState.StatusIds,
+  value: "",
+};
 
 const FilterView = (props) => {
+  const [selectedDate, setSelectedDate] = useState(defaultDateState);
+  const [selectedStatus, setSelectedStatus] = useState(defaultStatusState);
+
+  const onSelectDateHandler = (date) => {
+    setSelectedDate(props.dates.find((d) => d.key === date));
+  };
+
+  const onSelectStatusHandler = (status) => {
+    setSelectedStatus(props.statuses.find((s) => s.key === status));
+  };
+
+  // Empties selectedDate and selectedStatus states
+  const resetState = () => {
+    setSelectedDate(defaultDateState);
+    setSelectedStatus(defaultStatusState);
+  };
+
+  const onCancelHandler = () => {
+    resetState();
+    props.cancel();
+  };
+
+  const onResetHandler = () => {
+    resetState();
+    props.reset();
+  };
+
+  const onConfirmHandler = () => {
+    props.confirm(selectedDate?.key, selectedStatus?.key);
+  };
+
   return (
     <Animated.View
       style={[
@@ -17,8 +57,9 @@ const FilterView = (props) => {
       ]}
     >
       <SelectList
-        setSelected={(date) => props.onSelect(filterActions.updateDate, date)}
+        setSelected={(date) => onSelectDateHandler(date)}
         data={props.dates}
+        defaultOption={selectedDate}
         save="key"
         placeholder="Select Time Period"
         search={false}
@@ -27,10 +68,9 @@ const FilterView = (props) => {
         dropdownStyles={styles.bgWhite}
       />
       <SelectList
-        setSelected={(status) =>
-          props.onSelect(filterActions.setStatusId, status)
-        }
+        setSelected={(status) => onSelectStatusHandler(status)}
         data={props.statuses}
+        defaultOption={selectedStatus}
         save="key"
         placeholder="Select Status"
         search={false}
@@ -39,10 +79,20 @@ const FilterView = (props) => {
         dropdownStyles={styles.bgWhite}
       />
       <View style={styles.buttonContainer}>
-        <Button mode="text" onPress={props.cancel}>
-          Cancel
-        </Button>
-        <Button mode="elevated" onPress={props.confirm}>
+        <View style={styles.innerButtonContainer}>
+          <Button style={styles.button} mode="text" onPress={onCancelHandler}>
+            Cancel
+          </Button>
+          <Button style={styles.button} mode="text" onPress={onResetHandler}>
+            Reset
+          </Button>
+        </View>
+
+        <Button
+          style={styles.button}
+          mode="elevated"
+          onPress={onConfirmHandler}
+        >
           Confirm
         </Button>
       </View>
@@ -67,8 +117,15 @@ const styles = StyleSheet.create({
   bgWhite: {
     backgroundColor: colors.white,
   },
+  button: {
+    margin: "1%",
+  },
   buttonContainer: {
     marginHorizontal: "10%",
+  },
+  innerButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
   },
 });
 

@@ -1,31 +1,64 @@
 import { StyleSheet, View } from "react-native";
 import { Button, Divider, Text, TextInput } from "react-native-paper";
-import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
-import { colors, userDetailOptions } from "../constants/constants";
+import {
+  colors,
+  formatErrorMsg,
+  messageType,
+  userDetailOptions,
+} from "../constants/constants";
 import { updateEmail, updateMobile } from "../store/actions/userActions";
+import {
+  createMessageObject,
+  testEmailFormat,
+  testMobileFormat,
+} from "../constants/functions";
+import Message from "../components/Message";
+import Loading from "../components/Loading";
 
 const EditUserDetails = (props) => {
   const dispatch = useDispatch();
 
-  const [value, setValue] = useState(props.route.params.value);
+  const isLoading = useSelector((state) => state.user.isFetching);
 
+  useEffect(() => console.log(isLoading), [isLoading]);
+
+  const [value, setValue] = useState(props.route.params.value);
+  const [error, setError] = useState();
+  const [showError, setShowError] = useState();
+
+  // determines what value is being editted on this page
   const editType =
     props.route.params.field == userDetailOptions.email ? "Email" : "Phone";
 
-  const onChangeTextHandler = (text) => {
-    setValue(text);
-  };
-
+  // returns user to previous screen
   const returnToPrevScreen = () => props.navigation.pop();
 
+  // tests format of value and then submits new data to the backend
   const onSubmit = () => {
-    if (props.route.params.field === userDetailOptions.email)
-      dispatch(updateEmail(value, props.route.params.id));
-    else dispatch(updateMobile(value, props.route.params.id));
-
-    returnToPrevScreen();
+    try {
+      if (props.route.params.field === userDetailOptions.email) {
+        if (!testEmailFormat(value)) {
+          throw new Error(
+            createMessageObject(formatErrorMsg.email, messageType.warning)
+          );
+        }
+        dispatch(updateEmail(value, props.route.params.id));
+      } else {
+        if (!testMobileFormat(value)) {
+          throw new Error(
+            createMessageObject(formatErrorMsg.mobile, messageType.warning)
+          );
+        }
+        dispatch(updateMobile(value, props.route.params.id));
+      }
+      returnToPrevScreen();
+    } catch (error) {
+      setError(error.message);
+      setShowError(true);
+    }
   };
 
   return (
@@ -36,23 +69,29 @@ const EditUserDetails = (props) => {
       <Divider bold style={styles.divider} />
       <TextInput
         value={value}
-        onChangeText={(text) => onChangeTextHandler(text)}
+        onChangeText={(text) => setValue(text)}
         label={editType}
         mode="outlined"
       />
       <View style={styles.buttonContainer}>
-        <Button mode="text" onPress={returnToPrevScreen}>
-          Cancel
-        </Button>
-        <Button mode="contained-tonal" onPress={onSubmit}>
-          Confirm
-        </Button>
+        {isLoading ? (
+          <Loading disableStyles />
+        ) : (
+          <>
+            <Button mode="text" onPress={returnToPrevScreen}>
+              Cancel
+            </Button>
+            <Button mode="contained-tonal" onPress={onSubmit}>
+              Confirm
+            </Button>
+          </>
+        )}
       </View>
-      {/* <Message
-        error={ticketState.msg}
-        visible={ticketState.showMsg}
-        dismiss={() => ticketDispatch({ type: ticketActions.hideMsg })}
-      /> */}
+      <Message
+        error={error}
+        visible={showError}
+        dismiss={() => setShowError(false)}
+      />
     </View>
   );
 };

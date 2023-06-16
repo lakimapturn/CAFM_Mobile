@@ -10,6 +10,7 @@ const UserDetails = (props) => {
 
   const user = useSelector((state) => state.user);
 
+  // Removes user data from async storage and resets navigation stack
   const userLogout = () => {
     dispatch(logout());
     props.navigation.reset({
@@ -60,8 +61,7 @@ const UserDetails = (props) => {
       </List.Section>
       <View style={styles.logoutButtonContainer}>
         <Button
-          mode="contained"
-          style={styles.logoutButton}
+          mode="text"
           onPress={userLogout}
           labelStyle={styles.logoutButtonText}
         >
@@ -86,11 +86,11 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: "2%",
   },
-  logoutButton: {
+  logoutButtonText: {
+    textTransform: "uppercase",
+    color: colors.red,
     paddingHorizontal: "4%",
-    backgroundColor: colors.red,
   },
-  logoutButtonText: { textTransform: "uppercase" },
 });
 
 export default UserDetails;

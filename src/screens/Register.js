@@ -84,14 +84,13 @@ const Register = (props) => {
       regState.site,
       regState.location
     );
-    console.log(res);
     regDispatch({ type: registrationActions.hideLoading });
     regDispatch({ payload: res, type: registrationActions.showMsg });
   };
 
   // Closes dialog message
-  const dismissMessage = () => {
-    if (regState.message.MessageTypeValue === messageType.success) {
+  const dismissMessage = (success) => {
+    if (success) {
       regDispatch({ type: registrationActions.reset });
       returnToLogin();
     }
@@ -197,7 +196,7 @@ const Register = (props) => {
               <Error
                 error={regState.msg}
                 visible={regState.showError}
-                dismiss={dismissMessage}
+                dismiss={(success) => dismissMessage(success)}
               />
             )}
           </Card>

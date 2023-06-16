@@ -5,8 +5,8 @@ import {
   EDIT_TICKET,
   GET_ISSUE_LIST,
   GET_PARAMETERS,
+  STOP_FETCHING,
 } from "../actions/ticketActions";
-import { STOP_FETCHING } from "../actions/userActions";
 
 const initialState = {
   isFetching: false,

@@ -19,7 +19,7 @@ const TicketList = (props) => {
 
     if (props.page === 1) setPrevButtonDisabled(true);
     else setPrevButtonDisabled(false);
-  }, [props.page]);
+  }, [props.page, props.tickets]);
 
   return (
     <>
@@ -40,11 +40,16 @@ const TicketList = (props) => {
       </View>
       <FlatList
         data={props.tickets}
-        keyExtractor={(ticket) => ticket?.id}
+        keyExtractor={(ticket) => ticket?.ProfileId}
+        ListEmptyComponent={() => (
+          <Text variant="labelLarge" style={styles.emptyListText}>
+            No Tickets Found
+          </Text>
+        )}
         renderItem={({ item, index }) => (
           <Ticket
             ticket={item}
-            key={item?.id}
+            key={index}
             onPressEdit={(ticket) => props.editTicket(ticket)}
           />
         )}
@@ -59,6 +64,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
+  },
+  emptyListText: {
+    textAlign: "center",
   },
 });
 

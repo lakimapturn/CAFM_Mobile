@@ -3,20 +3,23 @@ import { StyleSheet, View } from "react-native";
 import { Button, Divider, Text, TextInput } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectList } from "react-native-dropdown-select-list";
-import DocumentPicker, { types } from "react-native-document-picker";
+import DocumentPicker, { types, isCancel } from "react-native-document-picker";
 
 import {
   colors,
   initialTicketState,
+  messageType,
   ticketActions,
 } from "../constants/constants";
 import { addEditTicket, getIssueList } from "../store/actions/ticketActions";
 import {
+  createMessageObject,
   formatVisitTime,
   getDefaultDropdownOption,
   getDropdownData,
 } from "../constants/functions";
 import Message from "../components/Message";
+import Loading from "../components/Loading";
 
 const AddEditTicketReducer = (state, action) => {
   switch (action.type) {
@@ -57,6 +60,7 @@ const AddEditTicket = (props) => {
   const dispatch = useDispatch();
   const issues = useSelector((state) => state.ticket.issues);
   const user = useSelector((state) => state.user);
+  const isLoading = useSelector((state) => state.ticket.isFetching);
   const [dropdownData, setDropdownData] = useState([]);
 
   const ticket = props.route.params?.ticketInfo;
@@ -95,21 +99,24 @@ const AddEditTicket = (props) => {
           type: [types.pdf, types.images],
         });
 
-        console.log(files);
         ticketDispatch({
           type: ticketActions.chooseFile,
-          payload: files.slice(0, Math.min(3, files.length - 1)),
+          payload: files.slice(0, Math.min(3, files.length)),
         });
         if (files.length > 3)
           ticketDispatch({
             type: ticketActions.showMsg,
-            payload: "File limit is 3. Only first 3 files were used.",
+            payload: createMessageObject(
+              "File limit is 3. Only first 3 files were used.",
+              messageType.warning
+            ),
           });
       } catch (error) {
-        ticketDispatch({
-          type: ticketActions.showMsg,
-          payload: error.message,
-        });
+        if (!isCancel(error))
+          ticketDispatch({
+            type: ticketActions.showMsg,
+            payload: createMessageObject(error.message, messageType.error),
+          });
       }
     }
   };
@@ -128,13 +135,26 @@ const AddEditTicket = (props) => {
       LocationId: user.LocationId,
     };
     try {
-      await dispatch(addEditTicket(ticket));
-      // await dispatch(addFiles(ticketState.files));
-      await props.navigation.pop();
+      await dispatch(addEditTicket(ticket, ticketState.files));
+      await ticketDispatch({
+        type: ticketActions.showMsg,
+        payload: createMessageObject(
+          "Operation Successful",
+          messageType.success
+        ),
+      });
     } catch (error) {
-      ticketDispatch({ type: ticketActions.showMsg, payload: error.message });
-      console.log(error);
+      ticketDispatch({
+        type: ticketActions.showMsg,
+        payload: createMessageObject(error.message, messageType.error),
+      });
     }
+  };
+
+  const onDismissMessage = (success) => {
+    ticketDispatch({ type: ticketActions.hideMsg });
+    console.log(success);
+    if (success) props.navigation.pop();
   };
 
   return (
@@ -178,20 +198,31 @@ const AddEditTicket = (props) => {
             })
           }
         />
-        <Button onPress={handleDocumentPicking}>Choose file</Button>
+        {ticketState.files?.length <= 3 && (
+          <Button onPress={handleDocumentPicking}>Choose file</Button>
+        )}
+        <Text variant="labelSmall" style={styles.fileUploadHelperText}>
+          {ticketState.files?.length}/3 Files Uploaded
+        </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Button mode="text" onPress={returnToPrevScreen}>
-          Cancel
-        </Button>
-        <Button mode="contained-tonal" onPress={onConfirm}>
-          Confirm
-        </Button>
+        {isLoading ? (
+          <Loading disableStyles />
+        ) : (
+          <>
+            <Button mode="text" onPress={returnToPrevScreen}>
+              Cancel
+            </Button>
+            <Button mode="contained-tonal" onPress={onConfirm}>
+              Confirm
+            </Button>
+          </>
+        )}
       </View>
       <Message
         error={ticketState.msg}
         visible={ticketState.showMsg}
-        dismiss={() => ticketDispatch({ type: ticketActions.hideMsg })}
+        dismiss={(success) => onDismissMessage(success)}
       />
     </View>
   );
@@ -203,6 +234,7 @@ const styles = StyleSheet.create({
   divider: { marginVertical: "2%" },
   inputContainer: { padding: "5%" },
   input: { marginVertical: "2%" },
+  fileUploadHelperText: { textAlign: "center" },
   buttonContainer: {
     marginVertical: "2%",
     flexDirection: "row",

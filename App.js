@@ -4,7 +4,7 @@ import { Provider as StoreProvider, useDispatch } from "react-redux";
 import ReduxThunk from "redux-thunk";
 import { applyMiddleware } from "redux";
 import { PaperProvider, DefaultTheme } from "react-native-paper";
-import { ImageBackground } from "react-native";
+import { ImageBackground, LogBox, StyleSheet } from "react-native";
 
 import ticketReducer from "./src/store/reducers/ticketReducer";
 import userReducer from "./src/store/reducers/userReducer";
@@ -59,12 +59,16 @@ export default function App() {
     },
   }));
 
+  LogBox.ignoreLogs([
+    "ImmutableStateInvariantMiddleware, SerializableStateInvariantMiddleware",
+  ]);
+
   return (
     <StoreProvider store={store}>
       <PaperProvider theme={theme}>
         <AuthContext.Provider value={authContext}>
           <ImageBackground
-            style={{ width: "100%", height: "100%" }}
+            style={styles.bgImage}
             source={require("./assets/1920-background.jpg")}
           >
             <AppNavigator isLoggedIn={isLoggedIn} />
@@ -74,3 +78,7 @@ export default function App() {
     </StoreProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  bgImage: { width: "100%", height: "100%" },
+});

@@ -1,10 +1,10 @@
 import {
   AUTHENTICATE,
-  FETCHING,
   LOGOUT,
   STOP_FETCHING,
   UPDATE_EMAIL,
   UPDATE_MOBILE,
+  FETCHING,
 } from "../actions/userActions";
 
 const initialState = {

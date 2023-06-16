@@ -5,35 +5,33 @@ import { useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { authenticate, syncUserData } from "../store/actions/userActions";
-import { screens } from "../constants/constants";
+import { formatErrorMsg, messageType, screens } from "../constants/constants";
 import Loading from "../components/Loading";
 import Message from "../components/Message";
+import { createMessageObject, testMobileFormat } from "../constants/functions";
 
 const Login = (props) => {
   const dispatch = useDispatch();
 
   const [mobileNum, setMobileNum] = useState("");
   const [password, setPassword] = useState("");
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
   const [showError, setShowError] = useState(false);
 
-  // Runs everytime mobileNum or password change. Used for validating the 2 fields
-  useEffect(() => {
-    if (mobileNum.length > 2 && password.length > 2) setIsButtonDisabled(false);
-    else setIsButtonDisabled(true);
-  }, [mobileNum, password]);
-
   const login = async () => {
     setIsLoading(true);
     try {
+      if (testMobileFormat(mobileNum))
+        throw new Error(
+          createMessageObject(formatErrorMsg.mobile, messageType.warning)
+        );
+
       await dispatch(authenticate(mobileNum, password));
       await props.navigation.replace(screens.home);
     } catch (err) {
       setError(err.message);
       setShowError(true);
-      setIsButtonDisabled(true);
     } finally {
       setIsLoading(false);
     }
@@ -67,55 +65,56 @@ const Login = (props) => {
   }, []);
 
   return (
-    <>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <View style={styles.page}>
-          <Card style={styles.card} mode="elevated">
-            <Card.Content>
-              <Text style={styles.title} variant="headlineLarge">
-                Login
-              </Text>
-            </Card.Content>
-            <Divider />
-            <Card.Content>
-              <TextInput
-                mode="outlined"
-                label="Mobile"
-                right={<TextInput.Icon icon="cellphone" />}
-                onChangeText={(text) => setMobileNum(text)}
-                style={styles.input}
-              />
-              <TextInput
-                mode="outlined"
-                label="Password"
-                secureTextEntry
-                right={<TextInput.Icon icon="key" />}
-                onChangeText={(text) => setPassword(text)}
-                style={styles.input}
-              />
-              <Button
-                disabled={isButtonDisabled}
-                mode="elevated"
-                onPress={login}
-                style={styles.authButton}
-              >
-                Login
-              </Button>
-              <Button
-                style={styles.authButton}
-                mode="text"
-                onPress={registerNewUser}
-              >
-                Register new user
-              </Button>
-            </Card.Content>
-          </Card>
-          <Message error={error} visible={showError} dismiss={dismissError} />
-        </View>
-      )}
-    </>
+    <View style={styles.page}>
+      <Card style={styles.card} mode="elevated">
+        <Card.Content>
+          <Text style={styles.title} variant="headlineLarge">
+            Login
+          </Text>
+        </Card.Content>
+        <Divider />
+        <Card.Content>
+          <TextInput
+            mode="outlined"
+            label="Mobile"
+            right={<TextInput.Icon icon="cellphone" />}
+            onChangeText={(text) => setMobileNum(text)}
+            style={styles.input}
+          />
+          <TextInput
+            mode="outlined"
+            label="Password"
+            secureTextEntry
+            right={<TextInput.Icon icon="key" />}
+            onChangeText={(text) => setPassword(text)}
+            style={styles.input}
+          />
+          <View style={styles.buttonContainer}>
+            {isLoading ? (
+              <Loading disableStyles />
+            ) : (
+              <>
+                <Button
+                  mode="elevated"
+                  onPress={login}
+                  style={styles.authButton}
+                >
+                  Login
+                </Button>
+                <Button
+                  style={styles.authButton}
+                  mode="text"
+                  onPress={registerNewUser}
+                >
+                  Register new user
+                </Button>
+              </>
+            )}
+          </View>
+        </Card.Content>
+      </Card>
+      <Message error={error} visible={showError} dismiss={dismissError} />
+    </View>
   );
 };
 
@@ -129,6 +128,9 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: "1.5%",
+  },
+  buttonContainer: {
+    marginTop: "2%",
   },
   authButton: {
     marginHorizontal: "5%",

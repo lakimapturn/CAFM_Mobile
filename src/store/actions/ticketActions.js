@@ -1,9 +1,10 @@
-import axios from "axios";
 import {
-  baseApiUrl,
+  apiUrls,
   commonErrorMsg,
+  defaultFileDescription,
   parameterType,
 } from "../../constants/constants";
+import { axiosPost } from "../../constants/functions";
 
 export const FETCHING = "FETCHING";
 export const STOP_FETCHING = "STOP_FETCHING";
@@ -18,10 +19,7 @@ export const getTickets = (filters) => {
   return async (dispatch) => {
     dispatch({ type: FETCHING });
     try {
-      const response = await axios.post(
-        baseApiUrl + "Ticket/GetTicketList",
-        filters
-      );
+      const response = await axiosPost(apiUrls.getTickets, filters);
 
       return dispatch({
         type: GET_TICKETS,
@@ -31,28 +29,48 @@ export const getTickets = (filters) => {
         },
       });
     } catch (error) {
-      console.log(error);
+      dispatch({ type: STOP_FETCHING });
       throw new Error(commonErrorMsg);
     }
   };
 };
 
 // Adding or editing ticket to backend
-export const addEditTicket = (ticket) => {
+export const addEditTicket = (ticket, files) => {
   return async (dispatch) => {
     dispatch({ type: FETCHING });
 
     try {
-      const response = await axios.post(
-        baseApiUrl + "Ticket/AddUpdateTicket",
-        ticket
-      );
+      const response = await axiosPost(apiUrls.addEditTicket, ticket);
 
       const type = ticket.id === 0 ? ADD_TICKET : EDIT_TICKET;
-      // return dispatch({ type: type, payload: response.data.ReturnTicketId });
+
+      return dispatch(addFiles(response.data.ReturnTicketId, files));
+    } catch (error) {
+      dispatch({ type: STOP_FETCHING });
+      throw new Error(commonErrorMsg);
+    }
+  };
+};
+
+// Adds files to the backend
+export const addFiles = (userId, ticketId, files) => {
+  return async (dispatch) => {
+    try {
+      const data = {
+        FileTypeValue: 10,
+        CreatedBy: userId,
+        DocRefId: ticketId,
+        Description: defaultFileDescription,
+        File: files,
+        LicenseeId: 1,
+      };
+
+      const response = await axiosPost(apiUrls.addFiles, data);
+
       return dispatch({ type: STOP_FETCHING });
     } catch (error) {
-      console.log(error);
+      dispatch({ type: STOP_FETCHING });
       throw new Error(commonErrorMsg);
     }
   };
@@ -64,10 +82,10 @@ export const getIssueList = () => {
     dispatch({ type: FETCHING });
 
     try {
-      const response = await axios.post(baseApiUrl + "Common/GetIssueList", {});
+      const response = await axiosPost(apiUrls.getIssues, {});
       return await dispatch({ type: GET_ISSUE_LIST, payload: response.data });
     } catch (error) {
-      console.log(error);
+      dispatch({ type: STOP_FETCHING });
       throw new Error(commonErrorMsg);
     }
   };
@@ -82,16 +100,13 @@ export const getParameters = () => {
       const data = {
         ParameterTypeIds: `${parameterType.periodType},${parameterType.ticketStatus}`,
       };
-      const response = await axios.post(
-        baseApiUrl + "Common/GetParameter",
-        data
-      );
+      const response = await axiosPost(apiUrls.getParameters, data);
       return dispatch({
         type: GET_PARAMETERS,
         payload: response.data.ParameterList,
       });
     } catch (error) {
-      console.log(error);
+      dispatch({ type: STOP_FETCHING });
       throw new Error(commonErrorMsg);
     }
   };

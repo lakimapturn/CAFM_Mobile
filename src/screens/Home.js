@@ -4,11 +4,7 @@ import { Animated, Dimensions, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 
 import Loading from "../components/Loading";
-import {
-  getIssueList,
-  getParameters,
-  getTickets,
-} from "../store/actions/ticketActions";
+import { getParameters, getTickets } from "../store/actions/ticketActions";
 import {
   filterActions,
   initialTicketFilterState,
@@ -20,26 +16,33 @@ import FilterView from "../components/FilterView";
 import TicketList from "../components/TicketList";
 import { StyleSheet } from "react-native";
 
+const screenHeight = Dimensions.get("screen").height;
+
 const filterReducer = (state, action) => {
   switch (action.type) {
-    case filterActions.updateDate: {
-      return { ...state, fromDate: new Date() - 1, toDate: new Date() };
+    case filterActions.updateDateAndStatus: {
+      return {
+        ...state,
+        DatePeriod: action.payload.date,
+        StatusIds: action.payload.status,
+        showFilters: false,
+      };
     }
 
     case filterActions.nextPage: {
       return { ...state, PageIndex: state.PageIndex + 1 };
     }
 
-    case filterActions.setStatusId: {
-      return { ...state, StatusId: action.payload };
-    }
-
     case filterActions.prevPage: {
       return { ...state, PageIndex: state.PageIndex - 1 };
     }
 
-    case filterActions.toggleFilters: {
-      return { ...state, showFilters: !state.showFilters };
+    case filterActions.closeFilters: {
+      return { ...state, showFilters: false };
+    }
+
+    case filterActions.openFilters: {
+      return { ...state, showFilters: true };
     }
 
     case filterActions.showAnimationLoading: {
@@ -54,8 +57,6 @@ const filterReducer = (state, action) => {
       return state;
   }
 };
-
-const screenHeight = Dimensions.get("screen").height;
 
 const Home = (props) => {
   const dispatch = useDispatch();
@@ -78,15 +79,36 @@ const Home = (props) => {
   const filtersPosition = useState(new Animated.Value(screenHeight))[0];
 
   useEffect(() => {
-    const fetchItems = async () => {
+    const fetchTickets = () => {
       try {
-        await dispatch(getTickets(filterState));
+        const filters = {
+          DatePeriod: filterState.DatePeriod,
+          FromDate: "",
+          ToDate: "",
+          PageIndex: filterState.PageIndex,
+          PageSize: 25,
+          SearchKey: "",
+          SiteIds: "",
+          LocationIds: "",
+          StatusIds: filterState.StatusIds,
+          SortBy: "TicketDate",
+          SortOrder: -1,
+          TicketId: 0,
+          LoggedUserId: user.ProfileId,
+          LicenseeId: user.LicenseeId,
+        };
+        dispatch(getTickets(filters));
       } catch (error) {
         console.log(error);
       }
     };
-    fetchItems();
-  }, [isFocused, filterState.PageIndex]);
+    fetchTickets();
+  }, [
+    isFocused,
+    filterState.PageIndex,
+    filterState.DatePeriod,
+    filterState.StatusIds,
+  ]);
 
   useEffect(() => {
     const fetchParameters = async () => {
@@ -101,14 +123,14 @@ const Home = (props) => {
 
   useEffect(
     () =>
-      setDateDropdown(getDropdownData(dates, "ParameterId", "ParameterValues")),
+      setDateDropdown(getDropdownData(dates, "ParameterNo", "ParameterValues")),
     [dates]
   );
 
   useEffect(
     () =>
       setStatusDropdown(
-        getDropdownData(statuses, "ParameterId", "ParameterValues")
+        getDropdownData(statuses, "ParameterNo", "ParameterValues")
       ),
     [statuses]
   );
@@ -119,86 +141,103 @@ const Home = (props) => {
     } else props.navigation.navigate(screens.addEditTicket);
   };
 
-  const onSelect = (type, payload) => {
-    filterDispatch({ type: type, payload: payload });
-  };
-
-  const toggleFilters = () => {
+  const showFilters = (show) => {
     Animated.timing(filtersPosition, {
-      toValue: filterState.showFilters ? screenHeight : 0,
-      duration: 700,
+      toValue: show ? 0 : screenHeight,
+      duration: 500,
       useNativeDriver: true,
     }).start();
-
-    filterDispatch({ type: filterActions.toggleFilters });
   };
 
-  const filter = async () => {
-    try {
-      await dispatch(getTickets(filterState));
-    } catch (error) {
-      console.log(error);
+  // toggles showFilter field
+  const toggleFilters = () => {
+    if (filterState.showFilters) {
+      showFilters(false);
+      filterDispatch({ type: filterActions.closeFilters });
+    } else {
+      showFilters(true);
+      filterDispatch({ type: filterActions.openFilters });
     }
-    toggleFilters();
+  };
+
+  const filter = (date, status) => {
+    showFilters(false);
+
+    filterDispatch({
+      type: filterActions.updateDateAndStatus,
+      payload: { date: date, status: status },
+    });
+  };
+
+  const resetFilters = () => {
+    filterDispatch({
+      type: filterActions.updateDateAndStatus,
+      payload: {
+        date: initialTicketFilterState.DatePeriod,
+        status: initialTicketFilterState.StatusIds,
+      },
+    });
+
+    showFilters(false);
+    filterDispatch({ type: filterActions.closeFilters });
   };
 
   const cancelFilters = () => {
-    toggleFilters();
-    filterDispatch({ type: filterActions.reset });
+    showFilters(false);
+    filterDispatch({ type: filterActions.closeFilters });
   };
 
   return (
-    <>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text variant="headlineSmall" style={styles.welcomeText}>
-              Welcome, {user?.FirstName}
-            </Text>
-            <Text variant="bodyMedium">{`${user?.LocationName}, ${user?.SiteName}`}</Text>
-            <View style={styles.buttonView}>
-              <View>
-                <Button
-                  mode="elevated"
-                  icon="filter-variant"
-                  onPress={toggleFilters}
-                  style={styles.filterButton}
-                >
-                  {filterState.showFilters ? "Hide" : "Show"} Filters
-                </Button>
-              </View>
-              <IconButton
-                mode="contained"
-                icon="plus"
-                size={22}
-                onPress={() => addEditTicket()}
-              />
-            </View>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text variant="headlineSmall" style={styles.welcomeText}>
+          Welcome, {user?.FirstName}
+        </Text>
+        <Text variant="bodyMedium">{`${user?.LocationName}, ${user?.SiteName}`}</Text>
+        <View style={styles.buttonView}>
+          <View>
+            <Button
+              mode="elevated"
+              icon="filter-variant"
+              onPress={toggleFilters}
+              style={styles.filterButton}
+            >
+              {filterState.showFilters ? "Hide" : "Show"} Filters
+            </Button>
           </View>
-          <Divider horizontalInset bold />
-          <View style={styles.container}>
-            <TicketList
-              editTicket={(ticket) => addEditTicket(ticket)}
-              tickets={tickets}
-              page={filterState.PageIndex + 1}
-              prevPage={() => filterDispatch({ type: filterActions.prevPage })}
-              nextPage={() => filterDispatch({ type: filterActions.nextPage })}
-            />
-
-            <FilterView
-              filtersPosition={filtersPosition}
-              dates={dateDropDown}
-              statuses={statusDropDown}
-              onSelect={(type, payload) => onSelect(type, payload)}
-              confirm={filter}
-              cancel={cancelFilters}
-            />
-          </View>
+          <IconButton
+            mode="contained"
+            icon="plus"
+            size={22}
+            onPress={() => addEditTicket()}
+          />
         </View>
-      )}
-    </>
+      </View>
+      <Divider horizontalInset bold />
+
+      <View style={styles.container}>
+        {isLoading ? (
+          <Loading large />
+        ) : (
+          <TicketList
+            editTicket={(ticket) => addEditTicket(ticket)}
+            tickets={tickets}
+            page={filterState.PageIndex + 1}
+            prevPage={() => filterDispatch({ type: filterActions.prevPage })}
+            nextPage={() => filterDispatch({ type: filterActions.nextPage })}
+          />
+        )}
+
+        <FilterView
+          filtersPosition={filtersPosition}
+          dates={dateDropDown}
+          statuses={statusDropDown}
+          confirm={(date, status) => filter(date, status)}
+          reset={resetFilters}
+          cancel={cancelFilters}
+        />
+      </View>
+    </View>
   );
 };
 
