@@ -1,9 +1,9 @@
 import { SelectList } from "react-native-dropdown-select-list";
-import { Button } from "react-native-paper";
 import { Animated, StyleSheet, View } from "react-native";
 
 import { colors, initialTicketFilterState } from "../constants/constants";
 import { useState } from "react";
+import CAFMButton from "./CAFMButton";
 
 const maxDropDownHeight = 100;
 const defaultDateState = {
@@ -80,21 +80,32 @@ const FilterView = (props) => {
       />
       <View style={styles.buttonContainer}>
         <View style={styles.innerButtonContainer}>
-          <Button style={styles.button} mode="text" onPress={onCancelHandler}>
+          <CAFMButton
+            style={styles.button}
+            mode="text"
+            theme="danger"
+            onPress={onCancelHandler}
+          >
             Cancel
-          </Button>
-          <Button style={styles.button} mode="text" onPress={onResetHandler}>
+          </CAFMButton>
+          <CAFMButton
+            style={styles.button}
+            mode="text"
+            theme="danger"
+            onPress={onResetHandler}
+          >
             Reset
-          </Button>
+          </CAFMButton>
         </View>
 
-        <Button
+        <CAFMButton
           style={styles.button}
           mode="elevated"
+          theme="primary"
           onPress={onConfirmHandler}
         >
           Confirm
-        </Button>
+        </CAFMButton>
       </View>
     </Animated.View>
   );

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Divider, Text, TextInput } from "react-native-paper";
+import { Divider, Text, TextInput } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
@@ -17,6 +17,7 @@ import {
 } from "../constants/functions";
 import Message from "../components/Message";
 import Loading from "../components/Loading";
+import CAFMButton from "../components/CAFMButton";
 
 const EditUserDetails = (props) => {
   const dispatch = useDispatch();
@@ -78,12 +79,16 @@ const EditUserDetails = (props) => {
           <Loading disableStyles />
         ) : (
           <>
-            <Button mode="text" onPress={returnToPrevScreen}>
+            <CAFMButton theme="danger" mode="text" onPress={returnToPrevScreen}>
               Cancel
-            </Button>
-            <Button mode="contained-tonal" onPress={onSubmit}>
+            </CAFMButton>
+            <CAFMButton
+              theme="primary"
+              mode="contained-tonal"
+              onPress={onSubmit}
+            >
               Confirm
-            </Button>
+            </CAFMButton>
           </>
         )}
       </View>

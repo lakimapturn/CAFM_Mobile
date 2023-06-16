@@ -20,6 +20,7 @@ import {
 } from "../constants/functions";
 import Message from "../components/Message";
 import Loading from "../components/Loading";
+import CAFMButton from "../components/CAFMButton";
 
 const AddEditTicketReducer = (state, action) => {
   switch (action.type) {
@@ -210,12 +211,16 @@ const AddEditTicket = (props) => {
           <Loading disableStyles />
         ) : (
           <>
-            <Button mode="text" onPress={returnToPrevScreen}>
+            <CAFMButton theme="danger" mode="text" onPress={returnToPrevScreen}>
               Cancel
-            </Button>
-            <Button mode="contained-tonal" onPress={onConfirm}>
+            </CAFMButton>
+            <CAFMButton
+              theme="primary"
+              mode="contained-tonal"
+              onPress={onConfirm}
+            >
               Confirm
-            </Button>
+            </CAFMButton>
           </>
         )}
       </View>

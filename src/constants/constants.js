@@ -24,8 +24,8 @@ export const statusColorIds = {
   2: statusColors.assigned,
   3: statusColors.resolved,
   4: statusColors.onHold,
-  8: statusColors.cancelled,
   7: statusColors.closed,
+  8: statusColors.cancelled,
 };
 
 // Response Message Types

@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
-import { Button, Card, Divider, Text } from "react-native-paper";
+import { Card, Divider, Text } from "react-native-paper";
 import { colors, statusColorIds } from "../constants/constants";
+import CAFMButton from "./CAFMButton";
 
 const Ticket = (props) => {
   const ticket = props.ticket;
@@ -30,10 +31,16 @@ const Ticket = (props) => {
         <Text variant={textVariant}>Raised On: {ticket.TicketDate}</Text>
       </Card.Content>
       <Card.Actions>
-        <Button mode="elevated" onPress={() => props.onPressEdit(ticket)}>
+        <CAFMButton
+          theme="primary"
+          mode="elevated"
+          onPress={() => props.onPressEdit(ticket)}
+        >
           Edit
-        </Button>
-        <Button mode="text">Cancel</Button>
+        </CAFMButton>
+        <CAFMButton theme="danger" mode="text">
+          Cancel
+        </CAFMButton>
       </Card.Actions>
     </Card>
   );

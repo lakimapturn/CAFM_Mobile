@@ -6,15 +6,17 @@ import { useIsFocused } from "@react-navigation/native";
 import Loading from "../components/Loading";
 import { getParameters, getTickets } from "../store/actions/ticketActions";
 import {
+  colors,
   filterActions,
   initialTicketFilterState,
   screens,
 } from "../constants/constants";
-import { Button, Divider, IconButton, Text } from "react-native-paper";
+import { Divider, IconButton, Text } from "react-native-paper";
 import { getDropdownData } from "../constants/functions";
 import FilterView from "../components/FilterView";
 import TicketList from "../components/TicketList";
 import { StyleSheet } from "react-native";
+import CAFMButton from "../components/CAFMButton";
 
 const screenHeight = Dimensions.get("screen").height;
 
@@ -196,18 +198,21 @@ const Home = (props) => {
         <Text variant="bodyMedium">{`${user?.LocationName}, ${user?.SiteName}`}</Text>
         <View style={styles.buttonView}>
           <View>
-            <Button
-              mode="elevated"
+            <CAFMButton
+              mode="contained"
+              theme="primary"
               icon="filter-variant"
               onPress={toggleFilters}
               style={styles.filterButton}
             >
               {filterState.showFilters ? "Hide" : "Show"} Filters
-            </Button>
+            </CAFMButton>
           </View>
           <IconButton
             mode="contained"
             icon="plus"
+            containerColor={colors.green}
+            iconColor={colors.white}
             size={22}
             onPress={() => addEditTicket()}
           />

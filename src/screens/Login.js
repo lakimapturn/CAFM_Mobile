@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
-import { Card, TextInput, Button, Divider, Text } from "react-native-paper";
+import { Card, TextInput, Divider, Text } from "react-native-paper";
 import { useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -9,6 +9,7 @@ import { formatErrorMsg, messageType, screens } from "../constants/constants";
 import Loading from "../components/Loading";
 import Message from "../components/Message";
 import { createMessageObject, testMobileFormat } from "../constants/functions";
+import CAFMButton from "../components/CAFMButton";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -94,20 +95,22 @@ const Login = (props) => {
               <Loading disableStyles />
             ) : (
               <>
-                <Button
+                <CAFMButton
                   mode="elevated"
+                  theme="primary"
                   onPress={login}
                   style={styles.authButton}
                 >
                   Login
-                </Button>
-                <Button
+                </CAFMButton>
+                <CAFMButton
+                  theme="primary"
                   style={styles.authButton}
                   mode="text"
                   onPress={registerNewUser}
                 >
                   Register new user
-                </Button>
+                </CAFMButton>
               </>
             )}
           </View>

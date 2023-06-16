@@ -10,6 +10,7 @@ import ticketReducer from "./src/store/reducers/ticketReducer";
 import userReducer from "./src/store/reducers/userReducer";
 import AppNavigator from "./src/navigation/AppNavigator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { colors } from "./src/constants/constants";
 
 const appReducer = {
   user: userReducer,

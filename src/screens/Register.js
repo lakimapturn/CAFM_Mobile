@@ -6,11 +6,11 @@ import { register } from "../store/actions/userActions";
 import {
   colors,
   initialRegistrationState,
-  messageType,
   registrationActions,
   screens,
 } from "../constants/constants";
 import Loading from "../components/Loading";
+import CAFMButton from "../components/CAFMButton";
 
 const registrationReducer = (state, action) => {
   switch (action.type) {
@@ -179,18 +179,16 @@ const Register = (props) => {
               />
             </Card.Content>
             <Card.Actions>
-              <Button onPress={returnToLogin} textColor="red" mode="text">
+              <CAFMButton onPress={returnToLogin} theme="danger" mode="text">
                 Cancel
-              </Button>
-              <Button
-                // disabled={isButtonDisabled}
+              </CAFMButton>
+              <CAFMButton
+                theme="primary"
                 mode="contained-tonal"
                 onPress={registerUser}
-                buttonColor={colors.green}
-                textColor={colors.white}
               >
                 Register
-              </Button>
+              </CAFMButton>
             </Card.Actions>
             {regState.showError && (
               <Error
