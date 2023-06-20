@@ -145,7 +145,7 @@ const Home = (props) => {
   };
 
   const cancelTicket = (ticket) => {
-    console.log(ticket.TicketId);
+    props.navigation.navigate(screens.cancelTicket, { ticket: ticket });
   };
 
   const showFilters = (show) => {

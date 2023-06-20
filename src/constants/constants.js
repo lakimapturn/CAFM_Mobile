@@ -43,6 +43,7 @@ export const screens = {
   addEditTicket: "Add/Edit Ticket",
   userDetails: "User Details",
   editUserDetails: "Edit User Details",
+  cancelTicket: "Cancel Ticket",
 };
 
 // Registration page: initial state object and actions object

@@ -20,6 +20,7 @@ import UserDetails from "../screens/UserDetails";
 import { useEffect } from "react";
 import { syncUserData } from "../store/actions/userActions";
 import EditUserDetails from "../screens/EditUserDetails";
+import CancelTicket from "../screens/CancelTicket";
 
 const theme = {
   ...DefaultTheme,
@@ -109,6 +110,7 @@ const AppNavigator = (props) => {
             options={options}
           />
           <App.Screen name={screens.addEditTicket} component={AddEditTicket} />
+          <App.Screen name={screens.cancelTicket} component={CancelTicket} />
           <App.Screen
             name={screens.editUserDetails}
             component={EditUserDetails}

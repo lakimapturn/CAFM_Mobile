@@ -1,3 +1,4 @@
+import RNFetchBlob from "rn-fetch-blob";
 import {
   apiUrls,
   commonErrorMsg,
@@ -38,7 +39,11 @@ export const getTickets = (filters) => {
 };
 
 // Adding or editing ticket to backend
-export const addEditTicket = (data, files, deletedFiles) => {
+export const addEditTicket = (
+  data,
+  files = undefined,
+  deletedFiles = undefined
+) => {
   return async (dispatch) => {
     dispatch({ type: FETCHING });
 
@@ -47,14 +52,16 @@ export const addEditTicket = (data, files, deletedFiles) => {
 
       const response = await axiosPost(apiUrls.addEditTicket, data);
 
-      for (const i in deletedFiles) {
-        const file = deletedFiles[i];
+      if (deletedFiles)
+        for (const i in deletedFiles) {
+          const file = deletedFiles[i];
 
-        if (file.DocID)
-          await deleteFiles(file.DocID, response.data.ReturnTicketId);
-      }
+          if (file.DocID)
+            await deleteFiles(file.DocID, response.data.ReturnTicketId);
+        }
 
-      await addFiles(data.LoggedInUser, response.data.ReturnTicketId, files);
+      if (files)
+        await addFiles(data.LoggedInUser, response.data.ReturnTicketId, files);
 
       return dispatch({ type: STOP_FETCHING });
     } catch (error) {
@@ -74,18 +81,26 @@ export const addFiles = async (userId, ticketId, files) => {
     formData.append("FileTypeValue", 10);
     formData.append("Description", defaultFileDescription);
 
-    for (const i in files) {
-      const file = files[i].uri;
-      console.log(file);
-      if (!file.DocID) formData.append("file", file);
-    }
+    files.forEach((file) => {
+      if (!file.DocID) {
+        console.log(file);
+        RNFetchBlob.fs
+          .stat(file.uri)
+          .then((stats) => {
+            console.log(stats);
+            formData.append("file", file);
+          })
+          .catch((err) => console.log(err));
+        // console.log(absolutePath);
+      }
+    });
 
     formData.append("LicenseeId", 1);
 
-    const response = await axiosPost(apiUrls.addTicketDocuments, formData, {
-      "Content-Type": "multipart/form-data",
-    });
-    console.log(response.data.Message);
+    // const response = await axiosPost(apiUrls.addTicketDocuments, formData, {
+    //   "Content-Type": "multipart/form-data",
+    // });
+    // console.log(response.data.Message);
 
     if (response.data.Message.MessageTypeValue !== messageType.success)
       throw new Error();
