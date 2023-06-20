@@ -11,6 +11,7 @@ import userReducer from "./src/store/reducers/userReducer";
 import AppNavigator from "./src/navigation/AppNavigator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors } from "./src/constants/constants";
+import { PermissionsAndroid } from "react-native";
 
 const appReducer = {
   user: userReducer,
@@ -59,6 +60,19 @@ export default function App() {
       setIsLoggedIn(true);
     },
   }));
+
+  const getFilesPermissions = async () => {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      {
+        title: "CAFM Mobile Storage Permissions",
+        message: "CAFM Mobile requires access to your documents",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      }
+    );
+  };
 
   LogBox.ignoreLogs([
     "ImmutableStateInvariantMiddleware",
