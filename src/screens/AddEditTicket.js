@@ -1,6 +1,13 @@
 import { useEffect, useReducer, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { Button, Divider, Text, TextInput } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  Button,
+  Divider,
+  IconButton,
+  List,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectList } from "react-native-dropdown-select-list";
 import DocumentPicker, { types, isCancel } from "react-native-document-picker";
@@ -9,9 +16,14 @@ import {
   colors,
   initialTicketState,
   messageType,
+  successfulOperation,
   ticketActions,
 } from "../constants/constants";
-import { addEditTicket, getIssueList } from "../store/actions/ticketActions";
+import {
+  addEditTicket,
+  getIssueList,
+  getTicketDocuments,
+} from "../store/actions/ticketActions";
 import {
   createMessageObject,
   formatVisitTime,
@@ -40,8 +52,38 @@ const AddEditTicketReducer = (state, action) => {
       return { ...state, issue: action.payload };
     }
 
-    case ticketActions.chooseFile: {
-      return { ...state, files: action.payload };
+    case ticketActions.setFiles: {
+      return {
+        ...state,
+        files: action.payload.map((file) => ({
+          name: file.OriginalDocName,
+          DocID: file.DocID,
+        })),
+        deletedFiles: [],
+      };
+    }
+
+    case ticketActions.addFile: {
+      return {
+        ...state,
+        files: [
+          ...state.files,
+          ...action.payload.slice(
+            0,
+            Math.min(3 - state.files.length, action.payload.length)
+          ),
+        ],
+      };
+    }
+
+    case ticketActions.deleteFile: {
+      state.deletedFiles.push(state.files.splice(action.payload, 1)[0]);
+
+      return {
+        ...state,
+        files: state.files,
+        deletedFiles: state.deletedFiles,
+      };
     }
 
     case ticketActions.showMsg: {
@@ -59,7 +101,9 @@ const AddEditTicketReducer = (state, action) => {
 
 const AddEditTicket = (props) => {
   const dispatch = useDispatch();
+
   const issues = useSelector((state) => state.ticket.issues);
+  const files = useSelector((state) => state.ticket.files);
   const user = useSelector((state) => state.user);
   const isLoading = useSelector((state) => state.ticket.isFetching);
   const [dropdownData, setDropdownData] = useState([]);
@@ -85,26 +129,42 @@ const AddEditTicket = (props) => {
       }
     };
     fetchIssues();
+
+    // only get documents if we are editing a ticket
+    if (ticket) {
+      const getFiles = async () => {
+        try {
+          await dispatch(getTicketDocuments(ticket?.TicketId));
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      getFiles();
+    }
   }, []);
 
-  useEffect(
-    () => setDropdownData(getDropdownData(issues, "IssueId", "IssueName")),
-    [issues]
-  );
+  useEffect(() => {
+    ticketDispatch({ type: ticketActions.setFiles, payload: files });
+  }, [files]);
+
+  useEffect(() => {
+    setDropdownData(getDropdownData(issues, "IssueId", "IssueName"));
+  }, [issues]);
 
   const handleDocumentPicking = async () => {
     {
       try {
-        const files = await DocumentPicker.pick({
+        const docs = await DocumentPicker.pick({
           allowMultiSelection: true,
           type: [types.pdf, types.images],
         });
 
         ticketDispatch({
-          type: ticketActions.chooseFile,
-          payload: files.slice(0, Math.min(3, files.length)),
+          type: ticketActions.addFile,
+          payload: docs,
         });
-        if (files.length > 3)
+
+        if (ticketState.files.length > 3)
           ticketDispatch({
             type: ticketActions.showMsg,
             payload: createMessageObject(
@@ -123,8 +183,8 @@ const AddEditTicket = (props) => {
   };
 
   const onConfirm = async () => {
-    const ticket = {
-      TicketId: ticket ? ticket.id : 0,
+    const data = {
+      TicketId: ticket ? ticket.TicketId : 0,
       IssueId: ticketState.issue,
       IssueDetails: ticketState.issueDetails,
       Remarks: "",
@@ -136,14 +196,14 @@ const AddEditTicket = (props) => {
       LocationId: user.LocationId,
     };
     try {
-      await dispatch(addEditTicket(ticket, ticketState.files));
+      await dispatch(
+        addEditTicket(data, ticketState.files, ticketState.deletedFiles)
+      );
       await ticketDispatch({
         type: ticketActions.showMsg,
-        payload: createMessageObject(
-          "Operation Successful",
-          messageType.success
-        ),
+        payload: createMessageObject(successfulOperation, messageType.success),
       });
+      props.navigation.pop();
     } catch (error) {
       ticketDispatch({
         type: ticketActions.showMsg,
@@ -154,12 +214,18 @@ const AddEditTicket = (props) => {
 
   const onDismissMessage = (success) => {
     ticketDispatch({ type: ticketActions.hideMsg });
-    console.log(success);
     if (success) props.navigation.pop();
   };
 
+  const removeFile = (index) => {
+    ticketDispatch({
+      type: ticketActions.deleteFile,
+      payload: index,
+    });
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title} variant="displaySmall">
         {ticket ? "Edit" : "Add"} Ticket
       </Text>
@@ -200,11 +266,41 @@ const AddEditTicket = (props) => {
           }
         />
         {ticketState.files?.length <= 3 && (
-          <Button onPress={handleDocumentPicking}>Choose file</Button>
+          <CAFMButton
+            theme="secondary"
+            mode="text"
+            onPress={handleDocumentPicking}
+          >
+            Choose file
+          </CAFMButton>
         )}
         <Text variant="labelSmall" style={styles.fileUploadHelperText}>
-          {ticketState.files?.length}/3 Files Uploaded
+          {ticketState.files.length}/3 Files Uploaded
         </Text>
+        {ticketState.files?.length > 0 && (
+          <>
+            <List.Subheader>Selected Files</List.Subheader>
+            <Divider />
+            {ticketState.files.map((file, index) => (
+              <>
+                <List.Item
+                  key={index}
+                  title={file.name}
+                  right={(props) => (
+                    <IconButton
+                      {...props}
+                      icon="delete"
+                      iconColor={colors.red}
+                      size={15}
+                      onPress={() => removeFile(index)}
+                    />
+                  )}
+                />
+                <Divider />
+              </>
+            ))}
+          </>
+        )}
       </View>
       <View style={styles.buttonContainer}>
         {isLoading ? (
@@ -229,7 +325,7 @@ const AddEditTicket = (props) => {
         visible={ticketState.showMsg}
         dismiss={(success) => onDismissMessage(success)}
       />
-    </View>
+    </ScrollView>
   );
 };
 

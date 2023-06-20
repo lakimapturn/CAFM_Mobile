@@ -4,9 +4,9 @@ import {
   messageType,
 } from "../../constants/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { axiosPost } from "../../constants/functions";
+import { axiosPost, createMessageObject } from "../../constants/functions";
 
-export const FETCHING = "FETCHING";
+export const FETCHING = "USER_FETCHING";
 export const STOP_FETCHING = "STOP_FETCHING";
 export const AUTHENTICATE = "AUTHENTICATE";
 export const UPDATE_EMAIL = "UPDATE_EMAIL";
@@ -21,6 +21,13 @@ export const authenticate = (mobileNum, password) => {
     const data = { UserName: mobileNum, Password: password };
 
     try {
+      if (!(mobileNum || password))
+        throw new Error(
+          createMessageObject(
+            "Please check entered fields",
+            messageType.warning
+          )
+        );
       const response = await axiosPost(apiUrls.login, data);
       if (response.data.Message.MessageTypeValue === messageType.success) {
         await AsyncStorage.setItem(
@@ -35,7 +42,7 @@ export const authenticate = (mobileNum, password) => {
       } else throw new Error(JSON.stringify(response.data.Message));
     } catch (error) {
       dispatch({ type: STOP_FETCHING });
-      throw error;
+      throw new Error(error.message);
     }
   };
 };
@@ -53,10 +60,16 @@ export const register = async (fname, lname, email, mobile, site, location) => {
   };
 
   try {
-    const response = await axiosPost(apiUrls.register, data);
-    return await response.data.Message;
+    if (fname && email && mobile && site && location) {
+      const response = await axiosPost(apiUrls.register, data);
+      return await response.data.Message;
+    }
+    return createMessageObject(
+      "Please check entered fields",
+      messageType.warning
+    );
   } catch (error) {
-    return commonErrorMsg;
+    return createMessageObject(commonErrorMsg, messageType.warning);
   }
 };
 

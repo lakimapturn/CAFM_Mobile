@@ -24,11 +24,14 @@ const EditUserDetails = (props) => {
 
   const isLoading = useSelector((state) => state.user.isFetching);
 
-  useEffect(() => console.log(isLoading), [isLoading]);
-
   const [value, setValue] = useState(props.route.params.value);
   const [error, setError] = useState();
   const [showError, setShowError] = useState();
+
+  const keyboardType =
+    props.route.params.field == userDetailOptions.email
+      ? "email-address"
+      : "phone-pad";
 
   // determines what value is being editted on this page
   const editType =
@@ -73,6 +76,7 @@ const EditUserDetails = (props) => {
         onChangeText={(text) => setValue(text)}
         label={editType}
         mode="outlined"
+        keyboardType={keyboardType}
       />
       <View style={styles.buttonContainer}>
         {isLoading ? (

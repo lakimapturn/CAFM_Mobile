@@ -32,13 +32,17 @@ const Ticket = (props) => {
       </Card.Content>
       <Card.Actions>
         <CAFMButton
-          theme="primary"
-          mode="elevated"
+          theme="secondary"
+          mode="text"
           onPress={() => props.onPressEdit(ticket)}
         >
           Edit
         </CAFMButton>
-        <CAFMButton theme="danger" mode="text">
+        <CAFMButton
+          theme="danger"
+          mode="text"
+          onPress={() => props.onPressCancel(ticket)}
+        >
           Cancel
         </CAFMButton>
       </Card.Actions>
@@ -49,7 +53,7 @@ const Ticket = (props) => {
 const styles = StyleSheet.create({
   divider: {
     backgroundColor: colors.green,
-    marginVertical: "2%",
+    marginBottom: "2%",
   },
   card: {
     marginHorizontal: "5%",

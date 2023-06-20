@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { Portal, Dialog, Text, Button } from "react-native-paper";
+import { Portal, Dialog, Text, Button, Snackbar } from "react-native-paper";
 import { colors, messageType } from "../constants/constants";
 
 const Message = (props) => {
@@ -14,6 +14,8 @@ const Message = (props) => {
       err = props.error;
     }
   }
+
+  const success = messageType.success === err?.MessageTypeValue;
 
   switch (err?.MessageTypeValue) {
     case messageType.error: {
@@ -38,19 +40,42 @@ const Message = (props) => {
   if (!err) return;
 
   const onDismissMessage = () => {
-    props.dismiss(messageType.success === err?.MessageTypeValue);
+    props.dismiss(success);
   };
 
   return (
     <Portal>
-      <Dialog
+      <Snackbar
+        style={(styles.dialog, { backgroundColor: color, borderColor: color })}
+        visible={props.visible}
+        onDismiss={props.dismiss}
+        action={{
+          label: "Dismiss",
+          onPress: () => {
+            onDismissMessage();
+          },
+          textColor: colors.white,
+        }}
+        duration={2000}
+      >
+        <Text
+          style={[styles.text, { textAlign: success ? "center" : "left" }]}
+          variant="titleSmall"
+        >
+          {err?.Text}
+        </Text>
+      </Snackbar>
+      {/* <Dialog
         style={(styles.dialog, { backgroundColor: color, borderColor: color })}
         visible={props.visible}
         onDismiss={props.dismiss}
       >
         {icon && <Dialog.Icon icon={icon} color={colors.white} size={35} />}
         <Dialog.Content style={styles.textContainer}>
-          <Text style={styles.text} variant="titleMedium">
+          <Text
+            style={[styles.text, { textAlign: success ? "center" : "left" }]}
+            variant="titleMedium"
+          >
             {err?.Text}
           </Text>
         </Dialog.Content>
@@ -63,7 +88,7 @@ const Message = (props) => {
             Dismiss
           </Button>
         </Dialog.Actions>
-      </Dialog>
+      </Dialog> */}
     </Portal>
   );
 };
@@ -74,7 +99,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   textContainer: {
-    paddingVertical: 0,
+    paddingVertical: "2%",
   },
   text: {
     color: colors.white,

@@ -19,11 +19,11 @@ const theme = {
   },
   secondary: {
     fillButton: {
-      background: colors.grey,
+      background: colors.blue,
       text: colors.white,
     },
     textButton: {
-      text: colors.grey,
+      text: colors.blue,
     },
   },
 };

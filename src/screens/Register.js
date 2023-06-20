@@ -1,16 +1,19 @@
-import { StyleSheet, View } from "react-native";
-import { Button, Card, Divider, Text, TextInput } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Card, Divider, Text } from "react-native-paper";
 import { useReducer } from "react";
 
 import { register } from "../store/actions/userActions";
 import {
-  colors,
   initialRegistrationState,
+  messageType,
   registrationActions,
   screens,
 } from "../constants/constants";
 import Loading from "../components/Loading";
 import CAFMButton from "../components/CAFMButton";
+import Message from "../components/Message";
+import { createMessageObject } from "../constants/functions";
+import CAFMInput from "../components/CAFMInput";
 
 const registrationReducer = (state, action) => {
   switch (action.type) {
@@ -54,6 +57,10 @@ const registrationReducer = (state, action) => {
       return { ...state, showError: false };
     }
 
+    case registrationActions.attemptRegistration: {
+      return { ...state, attemptRegistration: action.payload };
+    }
+
     case registrationActions.reset: {
       return initialRegistrationState;
     }
@@ -75,17 +82,33 @@ const Register = (props) => {
 
   // Dispatches request to register user
   const registerUser = async () => {
-    regDispatch({ type: registrationActions.showLoading });
-    const res = await register(
-      regState.fname,
-      regState.lname,
-      regState.email,
-      regState.mobile,
-      regState.site,
-      regState.location
-    );
-    regDispatch({ type: registrationActions.hideLoading });
-    regDispatch({ payload: res, type: registrationActions.showMsg });
+    try {
+      regDispatch({ type: registrationActions.showLoading });
+      regDispatch({
+        type: registrationActions.attemptRegistration,
+        payload: true,
+      });
+      const res = await register(
+        regState.fname,
+        regState.lname,
+        regState.email,
+        regState.mobile,
+        regState.site,
+        regState.location
+      );
+      regDispatch({ type: registrationActions.hideLoading });
+      regDispatch({ payload: res, type: registrationActions.showMsg });
+    } catch (error) {
+      regDispatch({
+        type: registrationActions.showMsg,
+        payload: createMessageObject(error.message, messageType.warning),
+      });
+    } finally {
+      regDispatch({
+        type: registrationActions.attemptRegistration,
+        payload: false,
+      });
+    }
   };
 
   // Closes dialog message
@@ -99,85 +122,107 @@ const Register = (props) => {
 
   return (
     <>
-      {regState.isLoading ? (
-        <Loading />
-      ) : (
-        <View style={styles.page}>
-          <Card mode="elevated">
-            <Card.Content>
-              <Text style={styles.title} variant="headlineLarge">
-                Register
-              </Text>
-            </Card.Content>
-            <Divider />
-            <Card.Content>
-              <TextInput
-                mode="outlined"
-                label="First Name"
-                style={styles.input}
-                onChangeText={(text) =>
-                  regDispatch({
-                    type: registrationActions.updateFname,
-                    payload: text,
-                  })
-                }
-              />
-              <TextInput
-                mode="outlined"
-                label="Last Name"
-                style={styles.input}
-                onChangeText={(text) =>
-                  regDispatch({
-                    type: registrationActions.updateLname,
-                    payload: text,
-                  })
-                }
-              />
-              <TextInput
-                mode="outlined"
-                label="Mobile"
-                style={styles.input}
-                onChangeText={(text) =>
-                  regDispatch({
-                    type: registrationActions.updateMobile,
-                    payload: text,
-                  })
-                }
-              />
-              <TextInput
-                mode="outlined"
-                label="Email"
-                style={styles.input}
-                onChangeText={(text) =>
-                  regDispatch({
-                    type: registrationActions.updateEmail,
-                    payload: text,
-                  })
-                }
-              />
-              <TextInput
-                mode="outlined"
-                label="Site/Building Name"
-                style={styles.input}
-                onChangeText={(text) =>
-                  regDispatch({
-                    type: registrationActions.updateSite,
-                    payload: text,
-                  })
-                }
-              />
-              <TextInput
-                mode="outlined"
-                label="Location/Room"
-                style={styles.input}
-                onChangeText={(text) =>
-                  regDispatch({
-                    type: registrationActions.updateLocation,
-                    payload: text,
-                  })
-                }
-              />
-            </Card.Content>
+      <ScrollView style={styles.page}>
+        <Card mode="elevated" style={styles.card}>
+          <Card.Content>
+            <Text style={styles.title} variant="headlineLarge">
+              Register
+            </Text>
+          </Card.Content>
+          <Divider />
+          <Card.Content>
+            <CAFMInput
+              mode="outlined"
+              label="First Name"
+              style={styles.input}
+              value={regState.fname}
+              required
+              onChangeText={(text) =>
+                regDispatch({
+                  type: registrationActions.updateFname,
+                  payload: text,
+                })
+              }
+              validate={regState.attemptRegistration}
+            />
+            <CAFMInput
+              mode="outlined"
+              label="Last Name"
+              value={regState.lname}
+              style={styles.input}
+              onChangeText={(text) =>
+                regDispatch({
+                  type: registrationActions.updateLname,
+                  payload: text,
+                })
+              }
+              validate={regState.attemptRegistration}
+            />
+            <CAFMInput
+              mode="outlined"
+              label="Mobile"
+              value={regState.mobile}
+              type="mobile"
+              required
+              keyboardType="phone-pad"
+              style={styles.input}
+              onChangeText={(text) =>
+                regDispatch({
+                  type: registrationActions.updateMobile,
+                  payload: text,
+                })
+              }
+              validate={regState.attemptRegistration}
+            />
+            <CAFMInput
+              mode="outlined"
+              label="Email"
+              type="email"
+              value={regState.email}
+              required
+              autoCapitalize="none"
+              keyboardType="email-address"
+              style={styles.input}
+              onChangeText={(text) =>
+                regDispatch({
+                  type: registrationActions.updateEmail,
+                  payload: text,
+                })
+              }
+              validate={regState.attemptRegistration}
+            />
+            <CAFMInput
+              mode="outlined"
+              label="Site/Building Name"
+              value={regState.site}
+              required
+              style={styles.input}
+              onChangeText={(text) =>
+                regDispatch({
+                  type: registrationActions.updateSite,
+                  payload: text,
+                })
+              }
+              validate={regState.attemptRegistration}
+            />
+            <CAFMInput
+              mode="outlined"
+              label="Location/Room"
+              value={regState.location}
+              required
+              style={styles.input}
+              onChangeText={(text) =>
+                regDispatch({
+                  type: registrationActions.updateLocation,
+                  payload: text,
+                })
+              }
+              validate={regState.attemptRegistration}
+            />
+          </Card.Content>
+          {regState.isLoading ? (
+            <Loading disableStyles />
+          ) : (
             <Card.Actions>
               <CAFMButton onPress={returnToLogin} theme="danger" mode="text">
                 Cancel
@@ -190,25 +235,27 @@ const Register = (props) => {
                 Register
               </CAFMButton>
             </Card.Actions>
-            {regState.showError && (
-              <Error
-                error={regState.msg}
-                visible={regState.showError}
-                dismiss={(success) => dismissMessage(success)}
-              />
-            )}
-          </Card>
-        </View>
-      )}
+          )}
+          {regState.showError && (
+            <Message
+              error={regState.msg}
+              visible={regState.showError}
+              dismiss={(success) => dismissMessage(success)}
+            />
+          )}
+        </Card>
+      </ScrollView>
     </>
   );
 };
 
 const styles = StyleSheet.create({
   page: {
-    top: "8%",
     height: "100%",
     paddingHorizontal: "8%",
+  },
+  card: {
+    marginVertical: "12%",
   },
   title: {
     textAlign: "center",

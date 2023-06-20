@@ -56,6 +56,7 @@ export const initialRegistrationState = {
   isLoading: false,
   msg: { MessageTypeValue: -1, Text: "" },
   showError: false,
+  attemptRegistration: false,
 };
 
 export const registrationActions = {
@@ -69,6 +70,7 @@ export const registrationActions = {
   updateLocation: "UPDATE_LOCATION",
   showMsg: "SHOW_MESSAGE",
   hideMsg: "HIDE_MESSAGE",
+  attemptRegistration: "ATTEMPT_REGISTRATION",
   reset: "RESET",
 };
 
@@ -77,6 +79,7 @@ export const initialTicketState = {
   issueDetails: "",
   visitTime: "",
   files: [],
+  deletedFiles: [],
   issuesVisible: false,
   issue: 0,
   msg: "",
@@ -86,7 +89,9 @@ export const initialTicketState = {
 export const ticketActions = {
   updateIssueDetails: "UPDATE_ISSUE_DETAILS",
   updateVisitTime: "UPDATE_VISIT_TIME",
-  chooseFile: "CHOOSE_FILE",
+  setFiles: "SET_FILES",
+  addFile: "ADD_FILE",
+  deleteFile: "DELETE_FILE",
   setIssuesVisible: "SET_ISSUES_VISIBLE",
   chooseIssue: "CHOOSE_ISSUE",
   showMsg: "SHOW_MESSAGE",
@@ -123,7 +128,7 @@ export const parameterType = {
   ticketStatus: 5,
 };
 
-// Error messages
+// Messages
 export const commonErrorMsg = "Something went wrong! Try again later.";
 export const formatErrorMsg = {
   email: "Please enter a valid email address",
@@ -131,6 +136,7 @@ export const formatErrorMsg = {
 };
 export const automaticLoginError =
   "Something went wrong while logging you in. Please enter your login details again.";
+export const successfulOperation = "Data Updated Successfully";
 
 // Regex Patterns
 export const mobileNumPattern =
@@ -148,7 +154,9 @@ export const apiUrls = {
   updateMobile: "Common/UpdateMobile",
   getTickets: "Ticket/GetTicketList",
   addEditTicket: "Ticket/AddUpdateTicket",
-  addFiles: "Common/UploadDocs",
+  getTicketDocuments: "Ticket/GetTicketDocuments",
+  deleteTicketDocuments: "Common/DeleteDocument",
+  addTicketDocuments: "Common/UploadDocs",
   getIssues: "Common/GetIssueList",
   getParameters: "Common/GetParameter",
 };

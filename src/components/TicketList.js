@@ -51,6 +51,7 @@ const TicketList = (props) => {
             ticket={item}
             key={index}
             onPressEdit={(ticket) => props.editTicket(ticket)}
+            onPressCancel={(ticket) => props.cancelTicket(ticket)}
           />
         )}
       />

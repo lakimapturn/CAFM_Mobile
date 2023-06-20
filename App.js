@@ -61,7 +61,9 @@ export default function App() {
   }));
 
   LogBox.ignoreLogs([
-    "ImmutableStateInvariantMiddleware, SerializableStateInvariantMiddleware",
+    "ImmutableStateInvariantMiddleware",
+    "SerializableStateInvariantMiddleware",
+    "Sending `onAnimatedValueUpdate`",
   ]);
 
   return (

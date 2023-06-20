@@ -27,7 +27,8 @@ export const getDefaultDropdownOption = (ticket = undefined) => {
 };
 
 // sends a post request using the specific api endpoint and data
-export const axiosPost = async (url, data) => {
+export const axiosPost = async (url, data, headers = undefined) => {
+  if (headers) return await axios.post(baseApiUrl + url, { ...data, headers });
   return await axios.post(baseApiUrl + url, data);
 };
 

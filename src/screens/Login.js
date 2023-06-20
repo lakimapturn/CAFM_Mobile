@@ -10,6 +10,7 @@ import Loading from "../components/Loading";
 import Message from "../components/Message";
 import { createMessageObject, testMobileFormat } from "../constants/functions";
 import CAFMButton from "../components/CAFMButton";
+import CAFMInput from "../components/CAFMInput";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -19,15 +20,12 @@ const Login = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
   const [showError, setShowError] = useState(false);
+  const [attemptRegistration, setAttemptRegistration] = useState(false);
 
   const login = async () => {
     setIsLoading(true);
+    setAttemptRegistration(true);
     try {
-      if (testMobileFormat(mobileNum))
-        throw new Error(
-          createMessageObject(formatErrorMsg.mobile, messageType.warning)
-        );
-
       await dispatch(authenticate(mobileNum, password));
       await props.navigation.replace(screens.home);
     } catch (err) {
@@ -35,6 +33,7 @@ const Login = (props) => {
       setShowError(true);
     } finally {
       setIsLoading(false);
+      setAttemptRegistration(false);
     }
   };
 
@@ -75,20 +74,28 @@ const Login = (props) => {
         </Card.Content>
         <Divider />
         <Card.Content>
-          <TextInput
+          <CAFMInput
             mode="outlined"
             label="Mobile"
+            required
+            value={mobileNum}
+            type="mobile"
             right={<TextInput.Icon icon="cellphone" />}
             onChangeText={(text) => setMobileNum(text)}
             style={styles.input}
+            keyboardType="phone-pad"
+            validate={attemptRegistration}
           />
-          <TextInput
+          <CAFMInput
             mode="outlined"
             label="Password"
+            value={password}
+            required
             secureTextEntry
             right={<TextInput.Icon icon="key" />}
             onChangeText={(text) => setPassword(text)}
             style={styles.input}
+            validate={attemptRegistration}
           />
           <View style={styles.buttonContainer}>
             {isLoading ? (
@@ -104,7 +111,7 @@ const Login = (props) => {
                   Login
                 </CAFMButton>
                 <CAFMButton
-                  theme="primary"
+                  theme="secondary"
                   style={styles.authButton}
                   mode="text"
                   onPress={registerNewUser}

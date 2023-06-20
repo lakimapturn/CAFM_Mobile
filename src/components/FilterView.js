@@ -91,7 +91,7 @@ const FilterView = (props) => {
           <CAFMButton
             style={styles.button}
             mode="text"
-            theme="danger"
+            theme="secondary"
             onPress={onResetHandler}
           >
             Reset

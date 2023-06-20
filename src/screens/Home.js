@@ -28,6 +28,7 @@ const filterReducer = (state, action) => {
         DatePeriod: action.payload.date,
         StatusIds: action.payload.status,
         showFilters: false,
+        PageIndex: 0,
       };
     }
 
@@ -143,6 +144,10 @@ const Home = (props) => {
     } else props.navigation.navigate(screens.addEditTicket);
   };
 
+  const cancelTicket = (ticket) => {
+    console.log(ticket.TicketId);
+  };
+
   const showFilters = (show) => {
     Animated.timing(filtersPosition, {
       toValue: show ? 0 : screenHeight,
@@ -226,6 +231,7 @@ const Home = (props) => {
         ) : (
           <TicketList
             editTicket={(ticket) => addEditTicket(ticket)}
+            cancelTicket={(ticket) => cancelTicket(ticket)}
             tickets={tickets}
             page={filterState.PageIndex + 1}
             prevPage={() => filterDispatch({ type: filterActions.prevPage })}

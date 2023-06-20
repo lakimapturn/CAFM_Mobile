@@ -6,6 +6,7 @@ import {
   GET_ISSUE_LIST,
   GET_PARAMETERS,
   STOP_FETCHING,
+  GET_TICKET_DOCS,
 } from "../actions/ticketActions";
 
 const initialState = {
@@ -27,6 +28,7 @@ const initialState = {
   // AssetId: 0,
   // LocationId: 0,
   tickets: [],
+  files: [],
   statuses: [],
   dates: [],
   issues: [],
@@ -79,6 +81,14 @@ const ticketReducer = (state = initialState, action) => {
     //     tickets: edittedTickets,
     //   });
     // }
+
+    case GET_TICKET_DOCS: {
+      return Object.assign({}, state, {
+        ...state,
+        isFetching: false,
+        files: action.payload.Documents,
+      });
+    }
 
     case GET_ISSUE_LIST: {
       return Object.assign({}, state, {
