@@ -4,14 +4,18 @@ import { Provider as StoreProvider, useDispatch } from "react-redux";
 import ReduxThunk from "redux-thunk";
 import { applyMiddleware } from "redux";
 import { PaperProvider, DefaultTheme } from "react-native-paper";
-import { ImageBackground, LogBox, StyleSheet } from "react-native";
+import {
+  ImageBackground,
+  LogBox,
+  StyleSheet,
+  PermissionsAndroid,
+} from "react-native";
+// import NetInfo from "@react-native-community/netinfo";
 
 import ticketReducer from "./src/store/reducers/ticketReducer";
 import userReducer from "./src/store/reducers/userReducer";
 import AppNavigator from "./src/navigation/AppNavigator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { colors } from "./src/constants/constants";
-import { PermissionsAndroid } from "react-native";
 
 const appReducer = {
   user: userReducer,
@@ -38,6 +42,13 @@ const AuthContext = createContext();
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isConnected, setIsConnected] = useState();
+
+  // useEffect(() => {
+  //   NetInfo.fetch().then((state) => {
+  //     console.log("Is connected?", setIsConnected(state.isConnected));
+  //   });
+  // }, []);
 
   // Checks if the user's credentials are saved and logs him in automatically
   useEffect(() => {

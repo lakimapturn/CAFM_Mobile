@@ -1,5 +1,11 @@
 import axios from "axios";
-import { baseApiUrl, emailPattern, mobileNumPattern } from "./constants";
+
+import {
+  apiUrls,
+  baseApiUrl,
+  emailPattern,
+  mobileNumPattern,
+} from "./constants";
 
 export const checkNum = (number) => {};
 
@@ -30,6 +36,10 @@ export const getDefaultDropdownOption = (ticket = undefined) => {
 export const axiosPost = async (url, data, headers = undefined) => {
   if (headers) return await axios.post(baseApiUrl + url, { ...data, headers });
   return await axios.post(baseApiUrl + url, data);
+};
+
+export const readFileData = () => {
+  const file = new File();
 };
 
 // checks if the entered mobile number matches the regex pattern

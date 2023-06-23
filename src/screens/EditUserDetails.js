@@ -7,6 +7,7 @@ import {
   colors,
   formatErrorMsg,
   messageType,
+  successfulOperation,
   userDetailOptions,
 } from "../constants/constants";
 import { updateEmail, updateMobile } from "../store/actions/userActions";
@@ -25,8 +26,8 @@ const EditUserDetails = (props) => {
   const isLoading = useSelector((state) => state.user.isFetching);
 
   const [value, setValue] = useState(props.route.params.value);
-  const [error, setError] = useState();
-  const [showError, setShowError] = useState();
+  const [msg, setMsg] = useState();
+  const [showMsg, setShowMsg] = useState();
 
   const keyboardType =
     props.route.params.field == userDetailOptions.email
@@ -58,10 +59,12 @@ const EditUserDetails = (props) => {
         }
         dispatch(updateMobile(value, props.route.params.id));
       }
+      setMsg(createMessageObject(successfulOperation, messageType.success));
+      setShowMsg(true);
       returnToPrevScreen();
     } catch (error) {
-      setError(error.message);
-      setShowError(true);
+      setMsg(error.message);
+      setShowMsg(true);
     }
   };
 
@@ -97,9 +100,9 @@ const EditUserDetails = (props) => {
         )}
       </View>
       <Message
-        error={error}
-        visible={showError}
-        dismiss={() => setShowError(false)}
+        error={msg}
+        visible={showMsg}
+        dismiss={() => setShowMsg(false)}
       />
     </View>
   );

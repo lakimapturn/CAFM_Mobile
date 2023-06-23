@@ -11,6 +11,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { SelectList } from "react-native-dropdown-select-list";
 import DocumentPicker, { types, isCancel } from "react-native-document-picker";
+// import * as DocumentPicker from "expo-document-picker";
 
 import {
   colors,
@@ -68,7 +69,7 @@ const AddEditTicketReducer = (state, action) => {
         ...state,
         files: [
           ...state.files,
-          ...action.payload.slice(
+          ...action.payload.splice(
             0,
             Math.min(3 - state.files.length, action.payload.length)
           ),

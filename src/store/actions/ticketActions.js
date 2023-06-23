@@ -1,4 +1,4 @@
-import RNFetchBlob from "rn-fetch-blob";
+// import RNFetchBlob from "rn-fetch-blob";
 import {
   apiUrls,
   commonErrorMsg,
@@ -6,7 +6,7 @@ import {
   messageType,
   parameterType,
 } from "../../constants/constants";
-import { axiosPost } from "../../constants/functions";
+import { axiosPost, uploadFiles } from "../../constants/functions";
 
 export const FETCHING = "TICKET_FETCHING";
 export const STOP_FETCHING = "STOP_FETCHING";
@@ -81,26 +81,39 @@ export const addFiles = async (userId, ticketId, files) => {
     formData.append("FileTypeValue", 10);
     formData.append("Description", defaultFileDescription);
 
+    const data = {
+      FileTypeValue: 10,
+      CreatedBy: userId,
+      DocRefId: ticketId,
+      Description: defaultFileDescription,
+      File: files,
+      LicenseeId: 1,
+    };
+
     files.forEach((file) => {
+      console.log(file);
       if (!file.DocID) {
-        console.log(file);
-        RNFetchBlob.fs
-          .stat(file.uri)
-          .then((stats) => {
-            console.log(stats);
-            formData.append("file", file);
-          })
+        const blob = fetch(file.uri)
+          .then((res) => res.blob())
+          .then((b) => b)
           .catch((err) => console.log(err));
-        // console.log(absolutePath);
+
+        const f = new File([blob], file.name, {
+          type: file.type,
+        });
+        console.log(blob);
+        console.log(f);
+
+        formData.append("file", f);
       }
     });
 
     formData.append("LicenseeId", 1);
 
-    // const response = await axiosPost(apiUrls.addTicketDocuments, formData, {
-    //   "Content-Type": "multipart/form-data",
-    // });
-    // console.log(response.data.Message);
+    const response = await axiosPost(apiUrls.addTicketDocuments, formData, {
+      "Content-Type": "multipart/form-data",
+      Accept: "application/json",
+    });
 
     if (response.data.Message.MessageTypeValue !== messageType.success)
       throw new Error();
