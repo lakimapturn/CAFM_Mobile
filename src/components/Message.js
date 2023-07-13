@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { Portal, Dialog, Text, Button, Snackbar } from "react-native-paper";
 import { colors, messageType } from "../constants/constants";
+import { memo } from "react";
 
 const Message = (props) => {
   let err;
@@ -51,9 +52,7 @@ const Message = (props) => {
         onDismiss={props.dismiss}
         action={{
           label: "Dismiss",
-          onPress: () => {
-            onDismissMessage();
-          },
+          onPress: onDismissMessage,
           textColor: colors.white,
         }}
         duration={2000}
@@ -65,30 +64,6 @@ const Message = (props) => {
           {err?.Text}
         </Text>
       </Snackbar>
-      {/* <Dialog
-        style={(styles.dialog, { backgroundColor: color, borderColor: color })}
-        visible={props.visible}
-        onDismiss={props.dismiss}
-      >
-        {icon && <Dialog.Icon icon={icon} color={colors.white} size={35} />}
-        <Dialog.Content style={styles.textContainer}>
-          <Text
-            style={[styles.text, { textAlign: success ? "center" : "left" }]}
-            variant="titleMedium"
-          >
-            {err?.Text}
-          </Text>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button
-            textColor={colors.white}
-            more="contained"
-            onPress={onDismissMessage}
-          >
-            Dismiss
-          </Button>
-        </Dialog.Actions>
-      </Dialog> */}
     </Portal>
   );
 };
@@ -110,4 +85,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Message;
+export default memo(Message);

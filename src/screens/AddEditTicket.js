@@ -137,7 +137,7 @@ const AddEditTicket = (props) => {
         try {
           await dispatch(getTicketDocuments(ticket?.TicketId));
         } catch (error) {
-          console.log(error);
+          console.log(error.message);
         }
       };
       getFiles();
@@ -158,6 +158,7 @@ const AddEditTicket = (props) => {
         const docs = await DocumentPicker.pick({
           allowMultiSelection: true,
           type: [types.pdf, types.images],
+          copyTo: "cachesDirectory",
         });
 
         ticketDispatch({
@@ -197,6 +198,9 @@ const AddEditTicket = (props) => {
       LocationId: user.LocationId,
     };
     try {
+      if (!(ticketState.issue && ticketState.issueDetails))
+        throw new Error("Please fill in all required fields");
+
       await dispatch(
         addEditTicket(data, ticketState.files, ticketState.deletedFiles)
       );
@@ -239,12 +243,12 @@ const AddEditTicket = (props) => {
           data={dropdownData}
           save="key"
           defaultOption={dropDownDefault}
-          placeholder="Issue"
+          placeholder="Issue *"
           searchPlaceholder="Search Issues"
         />
         <TextInput
           mode="outlined"
-          label="Issue Details"
+          label="Issue Details *"
           value={ticketState.issueDetails}
           onChangeText={(text) =>
             ticketDispatch({

@@ -52,6 +52,7 @@ const TicketList = (props) => {
             key={index}
             onPressEdit={(ticket) => props.editTicket(ticket)}
             onPressCancel={(ticket) => props.cancelTicket(ticket)}
+            onPressView={(ticket) => props.viewTicket(ticket)}
           />
         )}
       />

@@ -9,6 +9,7 @@ import { axiosPost, createMessageObject } from "../../constants/functions";
 export const FETCHING = "USER_FETCHING";
 export const STOP_FETCHING = "STOP_FETCHING";
 export const AUTHENTICATE = "AUTHENTICATE";
+export const FETCH_LICENSES = "FETCH_LICENSES";
 export const UPDATE_EMAIL = "UPDATE_EMAIL";
 export const UPDATE_MOBILE = "UPDATE_MOBILE";
 export const LOGOUT = "LOGOUT";
@@ -49,7 +50,15 @@ export const authenticate = (mobileNum, password) => {
 
 // Sends registration request to backend
 // requires no update to internal state
-export const register = async (fname, lname, email, mobile, site, location) => {
+export const register = async (
+  fname,
+  lname,
+  email,
+  mobile,
+  site,
+  location,
+  license
+) => {
   const data = {
     FirstName: fname,
     LastName: lname,
@@ -57,10 +66,11 @@ export const register = async (fname, lname, email, mobile, site, location) => {
     Mobile: mobile,
     SiteName: site,
     LocationName: location,
+    LicenseeId: license,
   };
 
   try {
-    if (fname && email && mobile && site && location) {
+    if (fname && email && mobile && site && location && license) {
       const response = await axiosPost(apiUrls.register, data);
       return await response.data.Message;
     }
@@ -71,6 +81,24 @@ export const register = async (fname, lname, email, mobile, site, location) => {
   } catch (error) {
     return createMessageObject(commonErrorMsg, messageType.warning);
   }
+};
+
+export const getLicenses = () => {
+  return async (dispatch) => {
+    dispatch({ type: FETCHING });
+    try {
+      const response = await axiosPost(apiUrls.getLicenses, {});
+
+      return dispatch({
+        type: FETCH_LICENSES,
+        payload: response.data.LicenseeList,
+      });
+    } catch (error) {
+      dispatch({ type: STOP_FETCHING });
+
+      throw new Error(commonErrorMsg);
+    }
+  };
 };
 
 // Requires no update of internal state

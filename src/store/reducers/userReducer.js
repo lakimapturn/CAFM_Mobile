@@ -5,6 +5,7 @@ import {
   UPDATE_EMAIL,
   UPDATE_MOBILE,
   FETCHING,
+  FETCH_LICENSES,
 } from "../actions/userActions";
 
 const initialState = {
@@ -25,6 +26,7 @@ const initialState = {
   HasLoginAccess: false,
   LicenseeId: 1,
   LicenseValidDate: null,
+  Licenses: [],
 };
 
 const userReducer = (state = initialState, action) => {
@@ -48,6 +50,13 @@ const userReducer = (state = initialState, action) => {
         ...state,
         isFetching: false,
         ...action.payload,
+      });
+    }
+
+    case FETCH_LICENSES: {
+      return Object.assign({}, state, {
+        ...state,
+        LicenseList: action.payload,
       });
     }
 

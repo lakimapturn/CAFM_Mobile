@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { Button } from "react-native-paper";
 import { colors } from "../constants/constants";
+import { memo } from "react";
 
 const theme = {
   primary: {
@@ -70,4 +71,4 @@ const styles = StyleSheet.create({
   primaryText: colors.green,
 });
 
-export default CAFMButton;
+export default memo(CAFMButton);

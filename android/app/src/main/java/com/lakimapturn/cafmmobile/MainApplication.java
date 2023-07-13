@@ -1,4 +1,4 @@
-package com.cafmmobile;
+package com.lakimapturn.cafmmobile;
 
 import android.app.Application;
 import android.content.res.Configuration;

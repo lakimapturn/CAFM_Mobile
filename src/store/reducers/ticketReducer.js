@@ -7,6 +7,7 @@ import {
   GET_PARAMETERS,
   STOP_FETCHING,
   GET_TICKET_DOCS,
+  CLEAR_TICKET_DOCS,
 } from "../actions/ticketActions";
 
 const initialState = {
@@ -87,6 +88,14 @@ const ticketReducer = (state = initialState, action) => {
         ...state,
         isFetching: false,
         files: action.payload.Documents,
+      });
+    }
+
+    case CLEAR_TICKET_DOCS: {
+      return Object.assign({}, state, {
+        ...state,
+        isFetching: false,
+        files: [],
       });
     }
 

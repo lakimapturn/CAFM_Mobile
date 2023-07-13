@@ -2,7 +2,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { Animated, StyleSheet, View } from "react-native";
 
 import { colors, initialTicketFilterState } from "../constants/constants";
-import { useState } from "react";
+import { memo, useState } from "react";
 import CAFMButton from "./CAFMButton";
 
 const maxDropDownHeight = 100;
@@ -140,4 +140,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterView;
+export default memo(FilterView);

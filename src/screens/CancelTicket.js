@@ -40,7 +40,7 @@ const CancelTicket = (props) => {
       setMsg(createMessageObject(successfulOperation, messageType.success));
       setShowMsg(true);
     } catch (error) {
-      setMsg(createMessageObject(msg.message, messageType.warning));
+      setMsg(createMessageObject(error.message, messageType.warning));
       setShowMsg(true);
     }
   };

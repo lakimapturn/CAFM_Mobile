@@ -1,4 +1,5 @@
-// import RNFetchBlob from "rn-fetch-blob";
+import * as FileSystem from "expo-file-system";
+
 import {
   apiUrls,
   commonErrorMsg,
@@ -16,6 +17,7 @@ export const EDIT_TICKET = "EDIT_TICKET";
 export const GET_ISSUE_LIST = "GET_ISSUE_LIST";
 export const GET_PARAMETERS = "GET_PARAMETERS";
 export const GET_TICKET_DOCS = "GET_TICKET_DOCS";
+export const CLEAR_TICKET_DOCS = "CLEAR_TICKET_DOCS";
 
 // Fetching tickets from backend
 export const getTickets = (filters) => {
@@ -60,7 +62,7 @@ export const addEditTicket = (
             await deleteFiles(file.DocID, response.data.ReturnTicketId);
         }
 
-      if (files)
+      if (files.length > 0)
         await addFiles(data.LoggedInUser, response.data.ReturnTicketId, files);
 
       return dispatch({ type: STOP_FETCHING });
@@ -91,12 +93,11 @@ export const addFiles = async (userId, ticketId, files) => {
     };
 
     files.forEach((file) => {
-      console.log(file);
       if (!file.DocID) {
         const blob = fetch(file.uri)
           .then((res) => res.blob())
           .then((b) => b)
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err.message));
 
         const f = new File([blob], file.name, {
           type: file.type,
@@ -115,8 +116,10 @@ export const addFiles = async (userId, ticketId, files) => {
       Accept: "application/json",
     });
 
-    if (response.data.Message.MessageTypeValue !== messageType.success)
-      throw new Error();
+    if (response.data.Message.MessageTypeValue !== messageType.success) {
+      console.log(response.data.Message);
+      throw new Error(response.data.Message);
+    }
   } catch (error) {
     throw new Error(commonErrorMsg);
   }
@@ -126,7 +129,6 @@ export const addFiles = async (userId, ticketId, files) => {
 export const deleteFiles = async (docId, ticketId) => {
   const data = { DocId: docId, TicketId: ticketId };
   try {
-    console.log(data);
     const response = await axiosPost(apiUrls.deleteTicketDocuments, data);
 
     if (response.data.Message.MessageTypeValue !== messageType.success)
@@ -156,6 +158,7 @@ export const getTicketDocuments = (ticketId) => {
 export const getIssueList = () => {
   return async (dispatch) => {
     dispatch({ type: FETCHING });
+    dispatch({ type: CLEAR_TICKET_DOCS });
 
     try {
       const response = await axiosPost(apiUrls.getIssues, {});

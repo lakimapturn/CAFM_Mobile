@@ -53,6 +53,7 @@ export const initialRegistrationState = {
   mobile: "",
   email: "",
   site: "",
+  license: 0,
   location: "",
   isLoading: false,
   msg: { MessageTypeValue: -1, Text: "" },
@@ -68,6 +69,7 @@ export const registrationActions = {
   updateMobile: "UPDATE_MOBILE",
   updateEmail: "UPDATE_EMAIL",
   updateSite: "UPDATE_SITE",
+  updateLicenseId: "UPDATE_LICENSE_ID",
   updateLocation: "UPDATE_LOCATION",
   showMsg: "SHOW_MESSAGE",
   hideMsg: "HIDE_MESSAGE",
@@ -158,6 +160,7 @@ export const apiUrls = {
   getTicketDocuments: "Ticket/GetTicketDocuments",
   deleteTicketDocuments: "Common/DeleteDocument",
   addTicketDocuments: "Common/UploadDocs",
+  getLicenses: "Common/GetLicenseeList",
   getIssues: "Common/GetIssueList",
   getParameters: "Common/GetParameter",
 };

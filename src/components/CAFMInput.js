@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { View } from "react-native";
 import { HelperText, TextInput } from "react-native-paper";
-import { colors } from "../constants/constants";
+import { colors, mobileNumPattern } from "../constants/constants";
 import { testEmailFormat, testMobileFormat } from "../constants/functions";
 
 const validationReasons = {
@@ -41,9 +41,11 @@ const CAFMInput = (props) => {
     switch (props.type) {
       case inputTypes.mobile: {
         if (!testMobileFormat(text)) return validationReasons.inputMismatch;
+        else break;
       }
       case inputTypes.email: {
         if (!testEmailFormat(text)) return validationReasons.inputMismatch;
+        else break;
       }
     }
     return validationReasons.none;
@@ -51,7 +53,6 @@ const CAFMInput = (props) => {
 
   const validate = (text) => {
     const invalidReason = getInvalidationType(text);
-    console.log(invalidReason, text);
     // revert back to if statements after pushing this commit
     switch (invalidReason) {
       case validationReasons.required: {
@@ -97,4 +98,4 @@ const CAFMInput = (props) => {
   );
 };
 
-export default CAFMInput;
+export default memo(CAFMInput);

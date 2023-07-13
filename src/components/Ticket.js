@@ -1,5 +1,7 @@
+import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { Card, Divider, Text } from "react-native-paper";
+
 import { colors, statusColorIds } from "../constants/constants";
 import CAFMButton from "./CAFMButton";
 
@@ -31,20 +33,32 @@ const Ticket = (props) => {
         <Text variant={textVariant}>Raised On: {ticket.TicketDate}</Text>
       </Card.Content>
       <Card.Actions>
-        <CAFMButton
-          theme="secondary"
-          mode="text"
-          onPress={() => props.onPressEdit(ticket)}
-        >
-          Edit
-        </CAFMButton>
-        <CAFMButton
-          theme="danger"
-          mode="text"
-          onPress={() => props.onPressCancel(ticket)}
-        >
-          Cancel
-        </CAFMButton>
+        {ticket.TicketStatus !== 8 ? (
+          <>
+            <CAFMButton
+              theme="secondary"
+              mode="text"
+              onPress={() => props.onPressEdit(ticket)}
+            >
+              Edit
+            </CAFMButton>
+            <CAFMButton
+              theme="danger"
+              mode="text"
+              onPress={() => props.onPressCancel(ticket)}
+            >
+              Cancel
+            </CAFMButton>
+          </>
+        ) : (
+          <CAFMButton
+            theme="secondary"
+            mode="text"
+            onPress={() => props.onPressView(ticket)}
+          >
+            View
+          </CAFMButton>
+        )}
       </Card.Actions>
     </Card>
   );
@@ -65,4 +79,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Ticket;
+export default memo(Ticket);

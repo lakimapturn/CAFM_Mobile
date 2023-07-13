@@ -102,7 +102,7 @@ const Home = (props) => {
         };
         dispatch(getTickets(filters));
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     };
     fetchTickets();
@@ -118,7 +118,7 @@ const Home = (props) => {
       try {
         await dispatch(getParameters());
       } catch (error) {
-        console.log(error);
+        console.log(error.message);
       }
     };
     fetchParameters();
@@ -145,6 +145,10 @@ const Home = (props) => {
   };
 
   const cancelTicket = (ticket) => {
+    props.navigation.navigate(screens.cancelTicket, { ticket: ticket });
+  };
+
+  const viewTicket = (ticket) => {
     props.navigation.navigate(screens.cancelTicket, { ticket: ticket });
   };
 
@@ -232,6 +236,7 @@ const Home = (props) => {
           <TicketList
             editTicket={(ticket) => addEditTicket(ticket)}
             cancelTicket={(ticket) => cancelTicket(ticket)}
+            viewTicket={(ticket) => viewTicket(ticket)}
             tickets={tickets}
             page={filterState.PageIndex + 1}
             prevPage={() => filterDispatch({ type: filterActions.prevPage })}

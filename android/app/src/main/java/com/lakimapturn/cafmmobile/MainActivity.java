@@ -1,4 +1,4 @@
-package com.cafmmobile;
+package com.lakimapturn.cafmmobile;
 
 import android.os.Build;
 import android.os.Bundle;

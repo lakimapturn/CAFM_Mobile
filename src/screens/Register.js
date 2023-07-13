@@ -1,9 +1,12 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Card, Divider, Text } from "react-native-paper";
-import { useReducer } from "react";
+import { Card, Divider, HelperText, Text } from "react-native-paper";
+import { useEffect, useReducer } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { SelectList } from "react-native-dropdown-select-list";
 
-import { register } from "../store/actions/userActions";
+import { getLicenses, register } from "../store/actions/userActions";
 import {
+  colors,
   initialRegistrationState,
   messageType,
   registrationActions,
@@ -12,7 +15,7 @@ import {
 import Loading from "../components/Loading";
 import CAFMButton from "../components/CAFMButton";
 import Message from "../components/Message";
-import { createMessageObject } from "../constants/functions";
+import { createMessageObject, getDropdownData } from "../constants/functions";
 import CAFMInput from "../components/CAFMInput";
 
 const registrationReducer = (state, action) => {
@@ -45,6 +48,10 @@ const registrationReducer = (state, action) => {
       return { ...state, site: action.payload };
     }
 
+    case registrationActions.updateLicenseId: {
+      return { ...state, license: action.payload };
+    }
+
     case registrationActions.updateLocation: {
       return { ...state, location: action.payload };
     }
@@ -71,14 +78,33 @@ const registrationReducer = (state, action) => {
 };
 
 const Register = (props) => {
+  const dispatch = useDispatch();
+
   const [regState, regDispatch] = useReducer(
     registrationReducer,
     initialRegistrationState
   );
 
+  const licenses = useSelector((state) => state.user.LicenseList);
+
   const returnToLogin = () => {
     props.navigation.replace(screens.login);
   };
+
+  useEffect(() => {
+    const getLicenseList = async () => {
+      try {
+        await dispatch(getLicenses());
+      } catch (error) {
+        regDispatch({
+          payload: error.message,
+          type: registrationActions.showMsg,
+        });
+      }
+    };
+
+    getLicenseList();
+  }, []);
 
   // Dispatches request to register user
   const registerUser = async () => {
@@ -94,14 +120,15 @@ const Register = (props) => {
         regState.email,
         regState.mobile,
         regState.site,
-        regState.location
+        regState.location,
+        regState.license
       );
       regDispatch({ type: registrationActions.hideLoading });
       regDispatch({ payload: res, type: registrationActions.showMsg });
     } catch (error) {
       regDispatch({
-        type: registrationActions.showMsg,
         payload: createMessageObject(error.message, messageType.warning),
+        type: registrationActions.showMsg,
       });
     } finally {
       regDispatch({
@@ -219,6 +246,26 @@ const Register = (props) => {
               }
               validate={regState.attemptRegistration}
             />
+            <View>
+              <SelectList
+                setSelected={(license) =>
+                  regDispatch({
+                    payload: license,
+                    type: registrationActions.updateLicenseId,
+                  })
+                }
+                data={getDropdownData(licenses, "LicenseeId", "LicenseeName")}
+                save="key"
+                placeholder="Select License*"
+                maxHeight={70}
+                boxStyles={[styles.bgWhite, styles.input]}
+              />
+              {regState.showError && regState.license === 0 && (
+                <HelperText type="error" visible={true}>
+                  This is a required field!
+                </HelperText>
+              )}
+            </View>
           </Card.Content>
           {regState.isLoading ? (
             <Loading disableStyles />
@@ -262,6 +309,12 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: "1%",
+  },
+  input: {
+    marginVertical: "2%",
+  },
+  bgWhite: {
+    backgroundColor: colors.white,
   },
 });
 
