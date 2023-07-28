@@ -97,3 +97,7 @@ You can find the apk files by navigating the following directories:
 ```
 /CAFM_Mobile/android/app/build/outputs/apk
 ```
+
+## Credits
+
+Coded and developed by lakimapturn
