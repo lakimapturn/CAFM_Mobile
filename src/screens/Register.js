@@ -57,7 +57,12 @@ const registrationReducer = (state, action) => {
     }
 
     case registrationActions.showMsg: {
-      return { ...state, msg: action.payload, showError: true };
+      return {
+        ...state,
+        msg: action.payload,
+        showError: true,
+        license: state.license > 0 ? state.license : -1,
+      };
     }
 
     case registrationActions.hideMsg: {
@@ -158,6 +163,26 @@ const Register = (props) => {
           </Card.Content>
           <Divider />
           <Card.Content>
+            <View>
+              <SelectList
+                setSelected={(license) =>
+                  regDispatch({
+                    payload: license,
+                    type: registrationActions.updateLicenseId,
+                  })
+                }
+                data={getDropdownData(licenses, "LicenseeId", "LicenseeName")}
+                save="key"
+                placeholder="Select License*"
+                maxHeight={70}
+                boxStyles={[styles.bgWhite, styles.input]}
+              />
+              {regState.license === -1 && (
+                <HelperText type="error" visible={true}>
+                  This is a required field!
+                </HelperText>
+              )}
+            </View>
             <CAFMInput
               mode="outlined"
               label="First Name"
@@ -246,26 +271,6 @@ const Register = (props) => {
               }
               validate={regState.attemptRegistration}
             />
-            <View>
-              <SelectList
-                setSelected={(license) =>
-                  regDispatch({
-                    payload: license,
-                    type: registrationActions.updateLicenseId,
-                  })
-                }
-                data={getDropdownData(licenses, "LicenseeId", "LicenseeName")}
-                save="key"
-                placeholder="Select License*"
-                maxHeight={70}
-                boxStyles={[styles.bgWhite, styles.input]}
-              />
-              {regState.showError && regState.license === 0 && (
-                <HelperText type="error" visible={true}>
-                  This is a required field!
-                </HelperText>
-              )}
-            </View>
           </Card.Content>
           {regState.isLoading ? (
             <Loading disableStyles />
